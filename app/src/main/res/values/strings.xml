@@ -1,0 +1,7 @@
+<resources>
+  <string name="app_name">XposedTest</string>
+  <string name="hide_icon">Hide Icon</string>
+  <string name="reboot_prompt">Reboot right now?</string>
+  <string name="cancel_reboot">NO</string>
+  <string name="ensure_reboot">YES</string>
+</resources>
