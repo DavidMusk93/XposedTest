@@ -21,7 +21,7 @@ object UpdateModule {
         .out
         .filter { !it.startsWith(appDirectoryPrefix) }
         .toMutableList()
-    Shell.su("echo $appDirectoryPrefix*").exec()
+    Shell.su("echo $appDirectoryPrefix*/base.apk").exec()
         .out
         .forEach { modules.add(it) }
     Shell.su("echo ${modules.joinToString("\n")} > $XPOSED_MODULE_LIST").exec()
