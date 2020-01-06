@@ -15,15 +15,16 @@ object UpdateModule {
       "/data/user_de/0/org.meowcat.edxposed.manager/conf/modules.list"
   }
 
-  fun update() {
+  fun update(sourceDir: String) {
     val appDirectoryPrefix = "/data/app/${com.example.xposedtest.BuildConfig.APPLICATION_ID}"
     val modules = Shell.su("cat $XPOSED_MODULE_LIST").exec()
         .out
         .filter { !it.startsWith(appDirectoryPrefix) }
         .toMutableList()
-    Shell.su("echo $appDirectoryPrefix*/base.apk").exec()
-        .out
-        .forEach { modules.add(it) }
+    // Shell.su("echo $appDirectoryPrefix*/base.apk").exec()
+    //     .out
+    //     .forEach { modules.add(it) }
+    modules.add(sourceDir)
     Shell.su("echo ${modules.joinToString("\n")} > $XPOSED_MODULE_LIST").exec()
   }
 

@@ -2,10 +2,12 @@ package com.example.xposedtest
 
 import android.app.Activity
 import android.app.Application
+import com.example.xposedtest.douyin.DouYinHook
 import com.example.xposedtest.miui.MiuiMarketClass
 import com.example.xposedtest.miui.MiuiMarketHook
 import com.example.xposedtest.miui.SecurityCenterHook
 import com.example.xposedtest.miui.SettingsHook
+import com.example.xposedtest.tomato.TomatoHook
 import com.example.xposedtest.utility.C
 import com.example.xposedtest.utility.DebugUtil
 import com.example.xposedtest.utility.is_N
@@ -96,6 +98,12 @@ class MainHook : IXposedHookLoadPackage {
 
       Ht.Package.SecurityCenter ->
         SecurityCenterHook(lpparam).setupHook()
+
+      Ht.Package.DouYin ->
+        DouYinHook(lpparam).setupHook()
+
+      Ht.Package.Tomato ->
+        TomatoHook(lpparam).setupHook()
 
       Ht.Package.MiuiMarket -> {
         val CS = MiuiMarketClass

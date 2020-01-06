@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Process
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
@@ -15,18 +16,24 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import com.example.xposedtest.extension.toByteArray
+import com.example.xposedtest.extension.toast
 import com.example.xposedtest.utility.FsUtil.Companion.pathLazy
 import com.example.xposedtest.utility.basename
+import com.example.xposedtest.utility.getField
 import com.example.xposedtest.xposed.UpdateModule
 import com.example.xposedtest.xposed.gLog
 import com.izuiyou.network.NetCrypto
+import com.tbruyelle.rxpermissions2.RxPermissions
 import com.topjohnwu.superuser.Shell
 import com.xiaomeng.workphone.Mp3Converter
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
 import java.io.IOException
+import java.lang.reflect.Field
+import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import java.util.zip.ZipFile
 
 class MainActivity : AppCompatActivity() {
 
@@ -65,28 +72,40 @@ class MainActivity : AppCompatActivity() {
     tv = findViewById(R.id.tv)
     tv!!.text = "davidmusk"
 
-    // checkStack()
-    // showInstalledPackage()
-    // showMemoryMap()
-    // showBuildItem()
-
     val quitButton = findViewById<Button>(R.id.btn_quit)
     quitButton.setOnClickListener { }
 
-    if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.PROCESS_OUTGOING_CALLS) != PackageManager.PERMISSION_GRANTED) {
-      ActivityCompat.requestPermissions(this@MainActivity, arrayOf(Manifest.permission.PROCESS_OUTGOING_CALLS), 1)
-    }
+    // if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.PROCESS_OUTGOING_CALLS) != PackageManager.PERMISSION_GRANTED) {
+    //   ActivityCompat.requestPermissions(this@MainActivity, arrayOf(Manifest.permission.PROCESS_OUTGOING_CALLS), 1)
+    // }
 
-    UpdateModule.update()
+    RxPermissions(this).
+        request(
+            Manifest.permission.PROCESS_OUTGOING_CALLS,
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE)
+        .subscribe {
+          if (!it) {
+            "Request permissions failed!".toast(this@MainActivity)
+            Process.killProcess(Process.myPid())
+          }
+        }.dispose()
+
+    UpdateModule.update(applicationInfo.sourceDir)
 
     quitButton.setOnClickListener {
       UpdateModule.reboot(this)
     }
 
+    // runCatching {
+    //   checkZipEntry("/sdcard/com.one.apk")
+    // }.onFailure { gLog("@CheckZipEntryError", "${it.message}") }
+
+    checkClassLoader()
+
     // dumpSystemInfo("${Environment.getExternalStorageDirectory()}/systemInfo.cfg")
     Thread {
-      loadApkPath()
-
       val mp3Output by pathLazy("/sdcard/xposedtest/mp3")
       runCatching {
         gLog("@VoiceDecode", "launch sh")
@@ -131,30 +150,67 @@ class MainActivity : AppCompatActivity() {
     }.start()
   }
 
-  @Throws(IOException::class)
-  fun loadApkPath() {
-    val path by pathLazy("/data/data/${BuildConfig.APPLICATION_ID}/conf")
-    val writer = File("$path/modules.list").printWriter()
-    packageManager.getInstalledPackages(PackageManager.GET_META_DATA)
-        .forEach {
-          it.applicationInfo
-              .let { info ->
-                // Filter by meta data
-                if (info.metaData != null && info.metaData.containsKey("xposedmodule")) {
-                  writer.println(info.sourceDir)
-                  Log.d(TAG, info.sourceDir)
-                }
-              }
-        }
-    // val su = Runtime.getRuntime().exec("su")
-    // su.outputStream.write("ls /data/app/${BuildConfig.APPLICATION_ID}*/base.apk\n".toByteArray())
-    // su.outputStream.flush()
-    // val reader = su.inputStream.bufferedReader()
-    // reader.readLine().toFile("$path/")
-    // reader.close()
-    writer.close()
-    // FetchModuleList.fetchList()
+  private fun checkZipEntry(apk: String) {
+    val zipFile = ZipFile(apk)
+    val entries = zipFile.entries()
+    gLog("@ZipEntry", "@@@ S T A R T @@@")
+    while (entries.hasMoreElements()) {
+      val zipEntry = entries.nextElement()
+      gLog("@ZipEntry", zipEntry.name)
+    }
+    gLog("@ZipEntry", "@@@@@ E N D @@@@@")
   }
+
+  private fun checkClassLoader() {
+    fun log(vararg msg: Any?) = gLog("@ClassLoader", *msg)
+    log(getField(classLoader, "pathList"))
+  }
+
+  private fun getField(obj: Any, name: String): Field? {
+    var clz: Class<*>? = obj::class.java
+    while (clz != null) {
+      kotlin.runCatching {
+        obj::class.java.getDeclaredField(name).let {
+          if (!it.isAccessible)
+            it.isAccessible = true
+          return it
+        }
+      }.onFailure { clz = clz?.superclass }
+    }
+    return null
+  }
+
+  private fun getMethod(obj: Any, name: String, vararg parameterTyeps: Class<*>): Method? {
+    var clz: Class<*>? = obj::class.java
+    while (clz != null) {
+      kotlin.runCatching {
+        obj::class.java.getDeclaredMethod(name, *parameterTyeps).let {
+          if (!it.isAccessible)
+            it.isAccessible = true
+          return it
+        }
+      }.onFailure { clz = clz?.superclass }
+    }
+    return null
+  }
+
+  // @Throws(IOException::class)
+  // fun loadApkPath() {
+  //   val path by pathLazy("/data/data/${BuildConfig.APPLICATION_ID}/conf")
+  //   val writer = File("$path/modules.list").printWriter()
+  //   packageManager.getInstalledPackages(PackageManager.GET_META_DATA)
+  //       .forEach {
+  //         it.applicationInfo
+  //             .let { info ->
+  //               // Filter by meta data
+  //               if (info.metaData != null && info.metaData.containsKey("xposedmodule")) {
+  //                 writer.println(info.sourceDir)
+  //                 Log.d(TAG, info.sourceDir)
+  //               }
+  //             }
+  //       }
+  //   writer.close()
+  // }
 
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
     val inflater = menuInflater
@@ -195,65 +251,6 @@ class MainActivity : AppCompatActivity() {
       Log.d(TAG, "checkStack: ######end")
     }
 
-  }
-
-  private fun showInstalledPackage() {
-    val packageManager = this.packageManager
-    val applicationInfoList = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
-
-    Log.d(TAG, "showInstalledPackage: ######start")
-    for (applicationInfo in applicationInfoList) {
-      Log.d(TAG, "showInstalledPackage: #" + applicationInfo.packageName)
-    }
-    Log.d(TAG, "showInstalledPackage: ######end")
-  }
-
-  private fun showMemoryMap() {
-    val reader: BufferedReader
-
-    Log.d(TAG, "showMemoryMap: ######start")
-    try {
-      val fileName = "/proc/" + android.os.Process.myPid() + "/maps"
-
-      reader = BufferedReader(FileReader(fileName))
-      var line: String? = reader.readLine()
-
-      while (line != null) {
-        Log.d(TAG, "showMemoryMap: #$line")
-        line = reader.readLine()
-      }
-
-      reader.close()
-    } catch (e: Exception) {
-      e.printStackTrace()
-    }
-
-    Log.d(TAG, "showMemoryMap: ######end")
-  }
-
-  internal fun showBuildItem() {
-    val cls = Build::class.java
-    val fields = cls.fields
-    Log.d(TAG, "showBuildItem: ######start")
-    try {
-      //https://blog.csdn.net/coder_pig/article/details/80031291
-      //Class c = Class.forName("android.os.Build");
-      //Method method = c.getDeclaredMethod("getString", String.class);
-      //method.setAccessible(true);
-      //method.invoke(c.newInstance(), "ro.product.model");
-
-      for (field in fields) {
-        //https://stackoverflow.com/questions/4466743/getting-all-static-variables-in-a-class-into-array-list
-        //https://stackoverflow.com/users/7408927/sevastyan-savanyuk
-        if (Modifier.isStatic(field.modifiers) && field.type == String::class.java) {
-          Log.d(TAG, "showBuildItem: #" + field.name + "-->" + field.get(null) as String)
-        }
-      }
-    } catch (e: Exception) {
-      e.printStackTrace()
-    }
-
-    Log.d(TAG, "showBuildItem: ######end")
   }
 
   companion object {
