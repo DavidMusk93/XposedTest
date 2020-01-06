@@ -17,13 +17,15 @@ import android.widget.Toast
 import com.example.xposedtest.extension.toByteArray
 import com.example.xposedtest.utility.FsUtil.Companion.pathLazy
 import com.example.xposedtest.utility.basename
-import com.example.xposedtest.utility.cast
 import com.example.xposedtest.xposed.UpdateModule
 import com.example.xposedtest.xposed.gLog
 import com.izuiyou.network.NetCrypto
 import com.topjohnwu.superuser.Shell
 import com.xiaomeng.workphone.Mp3Converter
-import java.io.*
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileReader
+import java.io.IOException
 import java.lang.reflect.Modifier
 
 class MainActivity : AppCompatActivity() {

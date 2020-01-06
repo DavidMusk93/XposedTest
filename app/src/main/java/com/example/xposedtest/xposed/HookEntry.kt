@@ -1,6 +1,7 @@
 package com.example.xposedtest.xposed
 
 import android.widget.Toast
+import com.example.xposedtest.utility.DebugUtil
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
@@ -34,9 +35,9 @@ open class HookEntry(lpparam: XC_LoadPackage.LoadPackageParam, val context: Hook
 
   fun setupHook(tag: String) {
     context.baseHook(tag)
-    gLog("@$tag", "@@@@@@@@@@@@@@@@@@@@ P R O C E S S  N A M E @@@@@@@@@@@@@@@@@@@@")
-    gLog("@$tag", context.processName)
-    gLog("@$tag", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+    DebugUtil.log("@@@ N E W  P R O C E S S @@@")
+    DebugUtil.log(context.processName)
+    DebugUtil.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
   }
 
   fun String.toast() {
@@ -45,8 +46,7 @@ open class HookEntry(lpparam: XC_LoadPackage.LoadPackageParam, val context: Hook
     if (now - toastContext.start > ToastContext.MAX_GAP) {
       context.ref?.get()?.let { Toast.makeText(it, this, Toast.LENGTH_SHORT).show() }
       toastContext.start = now
-    }
-    else {
+    } else {
       toastContext.job = MainScope().launch {
         delay(ToastContext.MAX_GAP)
         context.ref?.get()?.let { Toast.makeText(it, this@toast, Toast.LENGTH_SHORT).show() }

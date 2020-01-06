@@ -9,7 +9,9 @@ import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import kotlinx.coroutines.*
 
-class SecurityCenterHook(lpparam: XC_LoadPackage.LoadPackageParam): HookEntry(lpparam, HookContext()), IHookEntry {
+class SecurityCenterHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(lpparam, HookContext()), IHookEntry {
+
+  private val responseTimePool = listOf<Long>(500, 1000, 1500, 2000, 2500, 3000)
 
   override fun setupHook() {
     super.setupHook(javaClass.simpleName)
@@ -20,7 +22,7 @@ class SecurityCenterHook(lpparam: XC_LoadPackage.LoadPackageParam): HookEntry(lp
     "${SecurityCenter.RemoteProvider}".`class`()!!.hook("hD",
         C.String, C.Boolean,
         hookBefore {
-          val k = args[0].cast<String>()?: return@hookBefore
+          val k = args[0].cast<String>() ?: return@hookBefore
           if (k.equals("security_adb_install_enable"))
             args[1] = false
           log("BlockPermissionCheck", "enable adb install")
@@ -39,13 +41,15 @@ class SecurityCenterHook(lpparam: XC_LoadPackage.LoadPackageParam): HookEntry(lp
             // log("Button(-2)", XposedHelpers.callStaticMethod("${SecurityCenter.a}".`class`(), "bwk", obj, "getButton", cls, clsArr, -2))
             log("Button(-1)", XposedHelpers.callMethod(obj, "getButton", -1)) // Same as Button `Ca`
             log("Button(-2)", XposedHelpers.callMethod(obj, "getButton", -2)
-                .also { it
-                    .cast<Button>()
-                    ?.apply { acceptButton = this } })
+                .also {
+                  it
+                      .cast<Button>()
+                      ?.apply { acceptButton = this }
+                })
             log("Button(Ca)", thisObject.getField("Ca"))
           }.onFailure { log("Exception", "${it.message}") }
           CoroutineScope(Dispatchers.Default).launch {
-            delay(3000)
+            delay(responseTimePool.shuffled().last())
             MainScope().launch { acceptButton?.performClick() }
           }
         })
