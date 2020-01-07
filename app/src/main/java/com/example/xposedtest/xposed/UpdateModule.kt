@@ -8,7 +8,7 @@ import com.topjohnwu.superuser.Shell
 
 object UpdateModule {
 
-  val XPOSED_MODULE_LIST by lazy {
+  val XLIST by lazy {
     if (is_N())
       "/data/user_de/0/de.robv.android.xposed.installer/conf/modules.list"
     else
@@ -16,16 +16,18 @@ object UpdateModule {
   }
 
   fun update(sourceDir: String) {
-    val appDirectoryPrefix = "/data/app/${com.example.xposedtest.BuildConfig.APPLICATION_ID}"
-    val modules = Shell.su("cat $XPOSED_MODULE_LIST").exec()
+    val appDirectoryPrefix = "/data/app/${com.example.xposedtest.BuildConfig.APPLICATION_ID}-"
+    var modules = Shell.su("cat $XLIST").exec()
         .out
         .filter { !it.startsWith(appDirectoryPrefix) }
-        .toMutableList()
+        .joinToString(" ")
     // Shell.su("echo $appDirectoryPrefix*/base.apk").exec()
     //     .out
     //     .forEach { modules.add(it) }
-    modules.add(sourceDir)
-    Shell.su("echo ${modules.joinToString("\n")} > $XPOSED_MODULE_LIST").exec()
+    modules += " $sourceDir"
+
+    // Shell.su("echo ${modules.joinToString("\n")} > $XLIST").exec()
+    Shell.su(">$XLIST && for i in $modules; do echo \$i >> $XLIST; done").exec()
   }
 
   fun reboot(activity: Activity) {
