@@ -2,7 +2,6 @@ package com.example.xposedtest.tomato
 
 import android.content.Context
 import android.view.View
-import android.widget.ImageView
 import android.widget.LinearLayout
 import com.example.xposedtest.utility.C
 import com.example.xposedtest.utility.cast
@@ -125,6 +124,16 @@ class TomatoHookContext : HookContext() {
                 }
               })
         }
+
+    "com.one.tomato.mvp.ui.start.view.WarnActivity".`class`()
+        .apply {
+          hook("initData",
+              hookAfter {
+                ViewHelper.clickView(XposedHelpers.callMethod(thisObject,
+                    "i",
+                    2131298188))
+              })
+        }
   }
 
   override fun attachBaseContext() {
@@ -152,5 +161,10 @@ class TomatoHook(param: XC_LoadPackage.LoadPackageParam)
 
   override fun setupHook() {
     super.setupHook(javaClass.simpleName)
+    hook()
   }
+
+  private fun hook() {
+  }
+
 }
