@@ -1,6 +1,7 @@
 package com.example.xposedtest.xposed
 
 import android.app.Application
+import android.content.Context
 import com.example.xposedtest.utility.C
 import com.example.xposedtest.utility.cast
 import de.robv.android.xposed.XposedHelpers
@@ -10,7 +11,15 @@ open class HookContext(
     var ref: WeakReference<Application>? = null,
     var classLoader: ClassLoader? = null,
     var processName: String? = null
-) : BaseHook {
+) : BaseHook, IReinfore {
+
+  lateinit var realClassLoader: ClassLoader
+
+  fun String.`class`() = XposedHelpers.findClassIfExists(this, realClassLoader)
+
+  fun log(tag: String, vararg param: Any?) {
+    gLog("@$processName@$tag", *param)
+  }
 
   override fun attachBaseContext() {
     C.ContextWrapper.hook("attachBaseContext", C.Context,
@@ -27,4 +36,23 @@ open class HookContext(
   }
 
   fun findClass(className: String): Class<*>? = XposedHelpers.findClassIfExists(className, classLoader)
+
+  override fun attach(pkg: String) {
+    XposedHelpers.findAndHookMethod(
+        pkg, classLoader,
+        "attachBaseContext",
+        C.Context,
+        hookAfter {
+          args[0].cast<Context>()
+              ?.classLoader
+              ?.apply {
+                realClassLoader = this
+                hook()
+              }
+        })
+  }
+
+  override fun hook() {
+
+  }
 }

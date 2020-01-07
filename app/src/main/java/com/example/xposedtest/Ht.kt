@@ -17,5 +17,7 @@ object Ht {
         by lazy { "com.ss.android.ugc.aweme".hashCode() }
     val Tomato: Int
         by lazy { "com.one.fq.ad".hashCode() }
+    val Shyd: Int
+        by lazy { "com.sh.cm.shydhn".hashCode() }
   }
 }

@@ -25,14 +25,6 @@ class TomatoHookContext : HookContext() {
     )
   }
 
-  private lateinit var realClassLoader: ClassLoader
-
-  private fun String.`class`() = XposedHelpers.findClassIfExists(this, realClassLoader)
-
-  private fun log(tag: String, vararg param: Any?) {
-    gLog("@$processName@$tag", *param)
-  }
-
   private fun hookTrivial() {
     "com.one.tomato.mvp.base.BaseApplication".`class`()
         .apply {
@@ -137,22 +129,15 @@ class TomatoHookContext : HookContext() {
   }
 
   override fun attachBaseContext() {
-    XposedHelpers.findAndHookMethod(
-        "com.mine.proxy_core.ProxyApplication", classLoader,
-        "attachBaseContext",
-        C.Context,
-        hookAfter {
-          args[0].cast<Context>()
-              ?.classLoader
-              ?.apply {
-                realClassLoader = this
-                hookTrivial()
-                hookAd()
-                hookLookTime()
-                hookView()
-              }
-        })
+    attach("com.mine.proxy_core.ProxyApplication")
+  }
 
+  override fun hook() {
+    super.hook()
+    hookTrivial()
+    hookAd()
+    hookLookTime()
+    hookView()
   }
 }
 
