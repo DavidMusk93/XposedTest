@@ -13,6 +13,7 @@ object C {
   val String = String::class.java
   val ByteArray = kotlin.ByteArray::class.java
   val View = android.view.View::class.java
+  val ImageView = android.widget.ImageView::class.java
   val Bundle = android.os.Bundle::class.java
   val Context = android.content.Context::class.java
   val ViewGroup = android.view.ViewGroup::class.java

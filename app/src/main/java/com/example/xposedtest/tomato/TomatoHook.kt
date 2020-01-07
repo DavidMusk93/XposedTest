@@ -2,6 +2,8 @@ package com.example.xposedtest.tomato
 
 import android.content.Context
 import android.view.View
+import android.widget.ImageView
+import android.widget.LinearLayout
 import com.example.xposedtest.utility.C
 import com.example.xposedtest.utility.cast
 import com.example.xposedtest.utility.getField
@@ -9,6 +11,8 @@ import com.example.xposedtest.utility.setField
 import com.example.xposedtest.xposed.*
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
+import kotlinx.coroutines.*
+import java.lang.ref.WeakReference
 
 class TomatoHookContext : HookContext() {
 
@@ -73,6 +77,56 @@ class TomatoHookContext : HookContext() {
         }
   }
 
+  private fun hookView() {
+    "com.one.tomato.dialog.k".`class`()
+        .apply {
+          val bean = "com.one.tomato.entity.MainNotifyBean".`class`()
+          XposedHelpers.findAndHookConstructor(this,
+              C.Context, bean,
+              hookAfter { ViewHelper.clickView(thisObject.getField("v")) })
+        }
+
+    val adViewContext = AdViewContext()
+
+    "com.tomatolive.library.ui.view.custom.LiveAdBannerView".`class`()
+        .apply {
+          hook("initView",
+              hookAfter {
+                adViewContext.v1 = WeakReference(thisObject.getField("ivAdClose"))
+                adViewContext.v2 = WeakReference(thisObject.getField("ivBannerClose"))
+              })
+
+          hook("loadImg",
+              C.String, C.ImageView,
+              hookAfter {
+                if (adViewContext.testCount()) {
+                  CoroutineScope(Dispatchers.Unconfined).launch {
+                    delay(500)
+                    ViewHelper.clickView(adViewContext.v1?.get())
+                    delay(500)
+                    ViewHelper.clickView(adViewContext.v2?.get())
+                  }
+                }
+              })
+        }
+
+    "com.tomatolive.library.ui.activity.live.TomatoLiveFragment".`class`()
+        .apply {
+          val LiveInitInfoEntity = "com.tomatolive.library.model.LiveInitInfoEntity"
+
+          hook("initRoomInfo", LiveInitInfoEntity,
+              hookAfter {
+                log("TomatoLiveFragment", *args)
+                thisObject.getField<LinearLayout>("chatMsgRoot")?.let { layout ->
+                  MainScope().launch {
+                    delay(1000)
+                    layout.visibility = LinearLayout.GONE
+                  }
+                }
+              })
+        }
+  }
+
   override fun attachBaseContext() {
     XposedHelpers.findAndHookMethod(
         "com.mine.proxy_core.ProxyApplication", classLoader,
@@ -86,6 +140,7 @@ class TomatoHookContext : HookContext() {
                 hookTrivial()
                 hookAd()
                 hookLookTime()
+                hookView()
               }
         })
 
