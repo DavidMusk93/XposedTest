@@ -7,7 +7,7 @@ import com.example.xposedtest.xposed.*
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
-class SettingsHook(lpparam: XC_LoadPackage.LoadPackageParam): HookEntry(lpparam, HookContext()), IHookEntry {
+class SettingsHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(lpparam, HookContext()), IHookEntry {
 
   override fun setupHook() {
     super.setupHook(javaClass.simpleName)
@@ -27,11 +27,11 @@ class SettingsHook(lpparam: XC_LoadPackage.LoadPackageParam): HookEntry(lpparam,
             hookBoth({
               thisObject.getField<Any>(context.s1)
                   ?.run {
-                    val b = getField<Boolean>(context.s2)?: return@run
+                    val b = getField<Boolean>(context.s2) ?: return@run
                     if (b) {
                       setField(context.s2, false)
                       context.obj = this
-                      "Upgrade is disabled!".toast()
+                      "Upgrade is disabled!".toast2()
                     }
                   }
             }, {
@@ -67,7 +67,7 @@ class SettingsHook(lpparam: XC_LoadPackage.LoadPackageParam): HookEntry(lpparam,
         hookBoth({
           log("MethodInvoke", "cEh")
         }, {
-          val b = result.cast<Boolean>()?: return@hookBoth
+          val b = result.cast<Boolean>() ?: return@hookBoth
           if (!b) {
             log("Enable", "adb install")
             Bundle().apply {
@@ -84,7 +84,7 @@ class SettingsHook(lpparam: XC_LoadPackage.LoadPackageParam): HookEntry(lpparam,
         hookBoth({
           log("MethodInvoke", "cEg")
         }, {
-          val b = result.cast<Boolean>()?: return@hookBoth
+          val b = result.cast<Boolean>() ?: return@hookBoth
           if (!b) {
             log("Enable", "adb input")
             XposedHelpers.callStaticMethod(a, "cEi", true)

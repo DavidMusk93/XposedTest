@@ -44,11 +44,11 @@ public class NetCrypto {
 
     public static native String getProtocolKey();
 
+    public static native void setProtocolKey(String str);
+
     public static native void native_init();
 
     public static native boolean registerDID(byte[] bArr);
-
-    public static native void setProtocolKey(String str);
 
     public static native String sign(String str, byte[] bArr);
 }

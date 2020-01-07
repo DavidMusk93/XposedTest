@@ -85,6 +85,7 @@ class TomatoHookContext : HookContext() {
                 realClassLoader = this
                 hookTrivial()
                 hookAd()
+                hookLookTime()
               }
         })
 

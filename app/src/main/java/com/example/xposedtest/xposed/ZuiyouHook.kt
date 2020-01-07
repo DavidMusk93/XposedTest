@@ -9,8 +9,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 
 class ZuiyouHook(lpparam: XC_LoadPackage.LoadPackageParam)
   : HookEntry(lpparam, HookContext()),
-    IHookEntry
-{
+    IHookEntry {
 
   override fun setupHook() {
     super.setupHook(javaClass.simpleName)

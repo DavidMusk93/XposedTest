@@ -15,7 +15,7 @@ object VoiceHelper {
         return
       }
     }
-    val mp3 = "/sdcard/"+amr.replace(".amr", ".mp3").basename()
+    val mp3 = "/sdcard/" + amr.replace(".amr", ".mp3").basename()
     gLog("@AmrToMp3", "$amr to $mp3")
     // runCatching {
     //   val ret = JNI.decode(amr, mp3, mp3+"_")

@@ -13,8 +13,7 @@ import java.lang.ref.WeakReference
 
 class WxHook(lpparam: XC_LoadPackage.LoadPackageParam)
   : HookEntry(lpparam, WxHookContext())
-    , IHookEntry
-{
+    , IHookEntry {
 
   object Ref {
     var LauncherUI: WeakReference<Activity>? = null

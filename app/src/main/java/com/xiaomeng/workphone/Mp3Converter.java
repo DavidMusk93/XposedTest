@@ -4,8 +4,6 @@ import android.util.Log;
 
 public class Mp3Converter {
 
-    public static native int decode(String amr, String mp3);
-
     static {
         try {
             System.loadLibrary("silk");
@@ -14,4 +12,6 @@ public class Mp3Converter {
             Log.e("@sun@JNI", "load silk failed!", e);
         }
     }
+
+    public static native int decode(String amr, String mp3);
 }

@@ -15,7 +15,7 @@ class PackageNode(val parent: PackageNode?, val name: String) {
   }
 
   operator fun get(k: String): PackageNode {
-    return children[k]?: PackageNode(null, "")
+    return children[k] ?: PackageNode(null, "")
   }
 
   operator fun set(k: String, node: PackageNode) {

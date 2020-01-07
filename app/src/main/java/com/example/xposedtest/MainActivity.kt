@@ -3,11 +3,8 @@ package com.example.xposedtest
 import android.Manifest
 import android.content.ComponentName
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.os.Process
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
@@ -19,20 +16,15 @@ import com.example.xposedtest.extension.toByteArray
 import com.example.xposedtest.extension.toast
 import com.example.xposedtest.utility.FsUtil.Companion.pathLazy
 import com.example.xposedtest.utility.basename
-import com.example.xposedtest.utility.getField
 import com.example.xposedtest.xposed.UpdateModule
 import com.example.xposedtest.xposed.gLog
 import com.izuiyou.network.NetCrypto
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.topjohnwu.superuser.Shell
 import com.xiaomeng.workphone.Mp3Converter
-import java.io.BufferedReader
 import java.io.File
-import java.io.FileReader
-import java.io.IOException
 import java.lang.reflect.Field
 import java.lang.reflect.Method
-import java.lang.reflect.Modifier
 import java.util.zip.ZipFile
 
 class MainActivity : AppCompatActivity() {
@@ -79,12 +71,11 @@ class MainActivity : AppCompatActivity() {
     //   ActivityCompat.requestPermissions(this@MainActivity, arrayOf(Manifest.permission.PROCESS_OUTGOING_CALLS), 1)
     // }
 
-    RxPermissions(this).
-        request(
-            Manifest.permission.PROCESS_OUTGOING_CALLS,
-            Manifest.permission.READ_PHONE_STATE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE)
+    RxPermissions(this).request(
+        Manifest.permission.PROCESS_OUTGOING_CALLS,
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.READ_EXTERNAL_STORAGE)
         .subscribe {
           if (!it) {
             "Request permissions failed!".toast(this@MainActivity)
@@ -118,7 +109,7 @@ class MainActivity : AppCompatActivity() {
           var amr: String
           var mp3 = ""
           while (!readLine().also { amr = it }.isNullOrEmpty()) {
-            mp3 = mp3Output+"/"+amr.basename()?.replace(".amr", ".mp3")
+            mp3 = mp3Output + "/" + amr.basename()?.replace(".amr", ".mp3")
             File(mp3).let {
               if (it.exists()) {
                 gLog("@AmrToMp3", "$mp3 already exists")
