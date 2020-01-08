@@ -1,25 +1,28 @@
 package com.example.xposedtest.shyd
 
-import android.content.Context
 import com.example.xposedtest.utility.C
-import com.example.xposedtest.utility.cast
 import com.example.xposedtest.xposed.*
-import de.robv.android.xposed.XposedHelpers
+import com.wrbug.dumpdex.Native
 import de.robv.android.xposed.callbacks.XC_LoadPackage
+import java.io.File
 
 class ShydHookContext: HookContext() {
 
-  private fun hookTrivial() {
-
+  companion object {
+    const val PKG = "com.secneo.apkwrapper.ApplicationWrapper"
   }
 
   override fun attachBaseContext() {
-    attach("com.secneo.apkwrapper.ApplicationWrapper")
+    attach(PKG)
   }
 
   override fun hook() {
     super.hook()
     hookTrivial()
+  }
+
+  private fun hookTrivial() {
+
   }
 }
 
@@ -38,5 +41,26 @@ class ShydHook(param: XC_LoadPackage.LoadPackageParam)
           C.Int, C.String,
           hookAfter { log("onEvent", *args) })
     }
+
+    ShydHookContext.PKG.`class`()!!
+        .apply {
+          hook("attachBaseContext",
+              C.Context,
+              hookBefore {
+                context.processName?.let { name ->
+                  if (!name.contains(':')) {
+                    log("DexDumper", "Start to dump dex")
+                    val path = "/data/data/$name/dump"
+                    File(path).apply {
+                      if (!exists())
+                        mkdirs()
+                    }
+                    kotlin.runCatching {
+                      Native.dump(name)
+                    }.onFailure { log("DexDumper", "${it.message}") }
+                  }
+                }
+              })
+        }
   }
 }

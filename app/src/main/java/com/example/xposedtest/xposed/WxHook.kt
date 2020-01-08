@@ -124,9 +124,9 @@ class WxHook(lpparam: XC_LoadPackage.LoadPackageParam)
         C.String, C.Long, C.Long, C.Boolean,
         hookAfter { gLog("@onDownloadProgressChanged", *args) })
 
-    mm.compatible.util.k.`class`()!!.hook("b",
-        C.String, C.ClassLoader,
-        hookBefore { log("LoadLibrary", args[0]) })
+    // mm.compatible.util.k.`class`()!!.hook("b",
+    //     C.String, C.ClassLoader,
+    //     hookBefore { log("LoadLibrary", args[0]) })
   }
 
 }

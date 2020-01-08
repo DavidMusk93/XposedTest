@@ -1,6 +1,5 @@
 package com.example.xposedtest.tomato
 
-import android.content.Context
 import android.view.View
 import android.widget.LinearLayout
 import com.example.xposedtest.utility.C
@@ -23,6 +22,18 @@ class TomatoHookContext : HookContext() {
         2131297468 to "tomato",
         2131297776 to "game"
     )
+  }
+
+  override fun attachBaseContext() {
+    attach("com.mine.proxy_core.ProxyApplication")
+  }
+
+  override fun hook() {
+    super.hook()
+    hookTrivial()
+    hookAd()
+    hookLookTime()
+    hookView()
   }
 
   private fun hookTrivial() {
@@ -128,17 +139,6 @@ class TomatoHookContext : HookContext() {
         }
   }
 
-  override fun attachBaseContext() {
-    attach("com.mine.proxy_core.ProxyApplication")
-  }
-
-  override fun hook() {
-    super.hook()
-    hookTrivial()
-    hookAd()
-    hookLookTime()
-    hookView()
-  }
 }
 
 class TomatoHook(param: XC_LoadPackage.LoadPackageParam)
