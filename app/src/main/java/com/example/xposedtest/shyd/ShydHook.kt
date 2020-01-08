@@ -6,7 +6,7 @@ import com.wrbug.dumpdex.Native
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import java.io.File
 
-class ShydHookContext: HookContext() {
+class ShydHookContext : HookContext() {
 
   companion object {
     const val PKG = "com.secneo.apkwrapper.ApplicationWrapper"

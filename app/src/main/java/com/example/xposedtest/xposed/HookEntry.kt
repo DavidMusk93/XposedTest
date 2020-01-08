@@ -37,9 +37,9 @@ open class HookEntry(lpparam: XC_LoadPackage.LoadPackageParam, val context: Hook
 
   fun setupHook(tag: String) {
     context.baseHook(tag)
-    DebugUtil.log("@@@@@@ N E W  P R O C E S S @@@@@@")
+    DebugUtil.log("@@@@@@@@@@@@@@@@@@ N E W  P R O C E S S @@@@@@@@@@@@@@@@@@")
     DebugUtil.log(context.processName)
-    DebugUtil.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+    DebugUtil.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
   }
 
   fun String.toast() {

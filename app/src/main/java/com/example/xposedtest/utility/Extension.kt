@@ -40,12 +40,18 @@ fun String.toFile(path: String) {
   }
 }
 
-inline fun <reified T> Any.setField(field: String, t: T) {
-  XposedHelpers.setObjectField(this, field, t)
-  // if (t is Boolean)
-  //   XposedHelpers.setBooleanField(this, field, t)
-}
-
 inline fun <reified T> Any.getField(field: String): T? {
   return XposedHelpers.getObjectField(this, field) as T
+}
+
+inline fun <reified T> Any.setField(field: String, t: T) {
+  XposedHelpers.setObjectField(this, field, t)
+}
+
+inline fun <reified T> Class<*>.getStaticField(field: String): T? {
+  return XposedHelpers.getStaticObjectField(this, field).cast()
+}
+
+inline fun <reified T> Class<*>.setStaticField(field: String, t: T) {
+  XposedHelpers.setStaticObjectField(this, field, t)
 }

@@ -22,6 +22,8 @@ class TomatoHookContext : HookContext() {
         2131297468 to "tomato",
         2131297776 to "game"
     )
+
+    var enableLog = true
   }
 
   override fun attachBaseContext() {
@@ -34,6 +36,52 @@ class TomatoHookContext : HookContext() {
     hookAd()
     hookLookTime()
     hookView()
+    hookLevel()
+    hookLog()
+    hookLive()
+    hookDownloadVideo()
+  }
+
+  private fun hookDownloadVideo() {
+    "qx".`class`()
+        .apply {
+          // hook("e", C.String, hookAfter { log("(qx)UrlTransfer", *args, result) })
+          /* M3U8 downloader */
+          hook("g", C.String, hookAfter { log("(g)M3U8Download", *args, result) })
+        }
+
+    // "ex".`class`()
+    //     .apply {
+    //       hook("a", C.String, hookAfter { log("(ex)UrlTransfer", *args, result) })
+    //     }
+
+    val M3U8 = "com.one.tomato.thirdpart.m3u8.download.entity.M3U8".`class`()
+
+    "com.one.tomato.dialog.p".`class`()
+        .apply {
+          hook("a",
+              M3U8, C.String,
+              hookAfter {
+                log("Dump", *args)
+                log("(M3U8)dirFilePath", args[0].getField("dirFilePath"))
+              })
+        }
+  }
+
+  private fun hookLive() {
+    "com.tencent.rtmp.TXLivePlayer".`class`()
+        .apply {
+          hook("startPlay",
+              C.String, C.Int,
+              hookBefore { log("startPlay", *args) })
+        }
+  }
+
+  private fun hookLog() {
+    "com.one.tomato.utils.n".`class`()
+        .apply {
+          hook("a", C.Boolean, hookBefore { args[0] = enableLog })
+        }
   }
 
   private fun hookTrivial() {
@@ -118,7 +166,7 @@ class TomatoHookContext : HookContext() {
 
           hook("initRoomInfo", LiveInitInfoEntity,
               hookAfter {
-                log("TomatoLiveFragment", *args)
+                // log("TomatoLiveFragment", *args)
                 thisObject.getField<LinearLayout>("chatMsgRoot")?.let { layout ->
                   MainScope().launch {
                     delay(1000)
@@ -135,6 +183,67 @@ class TomatoHookContext : HookContext() {
                 ViewHelper.clickView(XposedHelpers.callMethod(thisObject,
                     "i",
                     2131298188))
+              })
+        }
+  }
+
+  private fun hookLevel() {
+    "com.one.tomato.utils.c0".`class`()
+        .apply {
+          hook("a", C.Int,
+              hookAfter { log("(a)Argument", *args, result) })
+        }
+
+    "com.one.tomato.entity.db.LevelBean".`class`()
+        .apply {
+          hook("getCurrentLevelIndex",
+              hookAfter {
+                log("getCurrentLevelIndex", result)
+                result = 15
+              })
+
+          hook("getCurrentLevelValue",
+              hookAfter {
+                log("getCurrentLevelValue", result)
+              })
+        }
+
+    "com.one.tomato.mvp.ui.papa.view.NewPaPaVideoPlayFragment".`class`()
+        .apply {
+          hook("c", C.Boolean,
+              hookBefore { log("(c)Invoke", *args, XposedHelpers.callMethod(thisObject, "y")) })
+
+          hook("B0",
+              hookBefore {
+                log("(B0)Invoke", "Playing video",
+                    thisObject
+                        .getField<Any>("B")
+                        ?.getField("secVideoUrl"))
+              })
+        }
+
+    "my".`class`()
+        .apply {
+          hook("c", hookBefore { thisObject.setField("e", true) })
+        }
+
+    "com.one.tomato.entity.db.UserInfo".`class`()
+        .apply {
+          hook("getVipType", hookBefore { thisObject.setField("vipType", 1) })
+        }
+
+    val LookTimes = "com.one.tomato.entity.LookTimes".`class`()
+        .apply {
+          hook("getTmtBalance", hookBefore { thisObject.setField("tmtBalance", 999) })
+        }
+
+    "com.one.tomato.dialog.q".`class`()
+        .apply {
+          hook("a",
+              LookTimes,
+              hookAfter {
+                log("Member(x)", thisObject.getField("x"))
+                ViewHelper.clickView(thisObject.getField("u"))
               })
         }
   }
