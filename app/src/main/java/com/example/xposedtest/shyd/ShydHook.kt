@@ -1,5 +1,6 @@
 package com.example.xposedtest.shyd
 
+import android.os.Process
 import com.example.xposedtest.utility.C
 import com.example.xposedtest.utility.getStaticField
 import com.example.xposedtest.xposed.*
@@ -59,7 +60,7 @@ class ShydHook(param: XC_LoadPackage.LoadPackageParam)
                 //     }.onFailure { log("DexDumper", "${it.message}") }
                 //   }
                 // }
-
+                log("Pid", Process.myPid())
               })
         }
 

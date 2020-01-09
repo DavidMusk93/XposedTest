@@ -53,6 +53,12 @@ class TomatoHookContext : HookContext() {
   }
 
   @HookMethod
+  private fun hookUpdate() {
+    "com.one.tomato.entity.UpdateInfo".`class`()
+        .apply { hook("getVersionList", hookAfter { result = null }) }
+  }
+
+  @HookMethod
   private fun hookDownloadVideo() {
     "qx".`class`()
         .apply {
