@@ -8,7 +8,11 @@ public class Native {
 
     static {
         try {
-            System.load("/data/local/tmp/libdexdumper.so");
+            /* Permission deny */
+            // System.load("/data/local/tmp/libdexdumper.so");
+
+            /* Not accessible for the namespace "classloader-namespace" */
+            System.load("/sdcard/armeabi-v7a/libdexdumper.so");
         } catch (Throwable t) {
             Log.d(TAG, "fail to load dexdumper: " + t);
         }

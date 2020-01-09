@@ -1,10 +1,9 @@
 package com.example.xposedtest.shyd
 
 import com.example.xposedtest.utility.C
+import com.example.xposedtest.utility.getStaticField
 import com.example.xposedtest.xposed.*
-import com.wrbug.dumpdex.Native
 import de.robv.android.xposed.callbacks.XC_LoadPackage
-import java.io.File
 
 class ShydHookContext : HookContext() {
 
@@ -47,20 +46,31 @@ class ShydHook(param: XC_LoadPackage.LoadPackageParam)
           hook("attachBaseContext",
               C.Context,
               hookBefore {
-                context.processName?.let { name ->
-                  if (!name.contains(':')) {
-                    log("DexDumper", "Start to dump dex")
-                    val path = "/data/data/$name/dump"
-                    File(path).apply {
-                      if (!exists())
-                        mkdirs()
-                    }
-                    kotlin.runCatching {
-                      Native.dump(name)
-                    }.onFailure { log("DexDumper", "${it.message}") }
-                  }
-                }
+                // context.processName?.let { name ->
+                //   if (!name.contains(':')) {
+                //     log("DexDumper", "Start to dump dex")
+                //     val path = "/data/data/$name/dump"
+                //     File(path).apply {
+                //       if (!exists())
+                //         mkdirs()
+                //     }
+                //     kotlin.runCatching {
+                //       Native.dump(name)
+                //     }.onFailure { log("DexDumper", "${it.message}") }
+                //   }
+                // }
+
               })
+        }
+
+    val Helper = "com.secneo.apkwrapper.Helper".`class`()!!
+        .apply {
+          log("StaticMember", getStaticField("ABCCHECK"))
+        }
+
+    "com.secneo.apkwrapper.e".`class`()!!
+        .apply {
+          hook("a", C.Context, hookBefore { log("SecurityCheck", "a()") })
         }
   }
 }

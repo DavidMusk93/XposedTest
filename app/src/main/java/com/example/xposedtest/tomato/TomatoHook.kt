@@ -2,6 +2,7 @@ package com.example.xposedtest.tomato
 
 import android.view.View
 import android.widget.LinearLayout
+import com.example.xposedtest.annotation.HookMethod
 import com.example.xposedtest.utility.C
 import com.example.xposedtest.utility.cast
 import com.example.xposedtest.utility.getField
@@ -32,16 +33,26 @@ class TomatoHookContext : HookContext() {
 
   override fun hook() {
     super.hook()
-    hookTrivial()
-    hookAd()
-    hookLookTime()
-    hookView()
-    hookLevel()
-    hookLog()
-    hookLive()
-    hookDownloadVideo()
+    // hookTrivial()
+    // hookAd()
+    // hookLookTime()
+    // hookView()
+    // hookLevel()
+    // hookLog()
+    // hookLive()
+    // hookDownloadVideo()
+
+    for (method in this::class.java.declaredMethods) {
+      for (annotation in method.annotations) {
+        when (annotation) {
+          is HookMethod ->
+            method.invoke(this)
+        }
+      }
+    }
   }
 
+  @HookMethod
   private fun hookDownloadVideo() {
     "qx".`class`()
         .apply {
@@ -68,6 +79,7 @@ class TomatoHookContext : HookContext() {
         }
   }
 
+  @HookMethod
   private fun hookLive() {
     "com.tencent.rtmp.TXLivePlayer".`class`()
         .apply {
@@ -77,6 +89,7 @@ class TomatoHookContext : HookContext() {
         }
   }
 
+  @HookMethod
   private fun hookLog() {
     "com.one.tomato.utils.n".`class`()
         .apply {
@@ -84,6 +97,7 @@ class TomatoHookContext : HookContext() {
         }
   }
 
+  @HookMethod
   private fun hookTrivial() {
     "com.one.tomato.mvp.base.BaseApplication".`class`()
         .apply {
@@ -106,6 +120,7 @@ class TomatoHookContext : HookContext() {
         }
   }
 
+  @HookMethod
   private fun hookAd() {
     "com.one.tomato.utils.f".`class`()
         .apply {
@@ -115,6 +130,7 @@ class TomatoHookContext : HookContext() {
         }
   }
 
+  @HookMethod
   private fun hookLookTime() {
     "ny".`class`()
         .apply {
@@ -127,6 +143,7 @@ class TomatoHookContext : HookContext() {
         }
   }
 
+  @HookMethod
   private fun hookView() {
     "com.one.tomato.dialog.k".`class`()
         .apply {
@@ -187,6 +204,7 @@ class TomatoHookContext : HookContext() {
         }
   }
 
+  @HookMethod
   private fun hookLevel() {
     "com.one.tomato.utils.c0".`class`()
         .apply {
