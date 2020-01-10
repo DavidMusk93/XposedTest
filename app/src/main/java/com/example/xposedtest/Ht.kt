@@ -19,5 +19,7 @@ object Ht {
         by lazy { "com.one.fq.ad".hashCode() }
     val Shyd: Int
         by lazy { "com.sh.cm.shydhn".hashCode() }
+    val Kuai: Int
+        by lazy { "com.smile.gifmaker".hashCode() }
   }
 }

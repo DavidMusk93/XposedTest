@@ -278,11 +278,7 @@ class TomatoHook(param: XC_LoadPackage.LoadPackageParam)
   : HookEntry(param, TomatoHookContext()), IHookEntry {
 
   override fun setupHook() {
-    super.setupHook(javaClass.simpleName)
-    hook()
-  }
-
-  private fun hook() {
+    super.setupHook(this)
   }
 
 }

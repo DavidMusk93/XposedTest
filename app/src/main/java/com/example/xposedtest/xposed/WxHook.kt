@@ -2,6 +2,7 @@ package com.example.xposedtest.xposed
 
 import android.app.Activity
 import android.content.ContentValues
+import com.example.xposedtest.annotation.HookMethod
 import com.example.xposedtest.extension.amrToMp3
 import com.example.xposedtest.extension.peekMessage
 import com.example.xposedtest.hash.WxTable
@@ -36,12 +37,12 @@ class WxHook(lpparam: XC_LoadPackage.LoadPackageParam)
   private var loadFlag = false
 
   override fun setupHook() {
-    super.setupHook(javaClass.simpleName)
-    hook()
+    super.setupHook(this)
   }
 
   private val g: Class<*> by lazy { mm.kernel.g.`class`()!! }
 
+  @HookMethod
   private fun hook() {
     // g.hook("b",
     //     Class::class.java, mm.kernel.c.a.`class`(), // thank TypeErase

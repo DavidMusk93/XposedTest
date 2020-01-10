@@ -2,6 +2,7 @@ package com.example.xposedtest.miui
 
 import android.os.Bundle
 import android.preference.Preference
+import com.example.xposedtest.annotation.HookMethod
 import com.example.xposedtest.utility.*
 import com.example.xposedtest.xposed.*
 import de.robv.android.xposed.XposedHelpers
@@ -10,10 +11,10 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 class SettingsHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(lpparam, HookContext()), IHookEntry {
 
   override fun setupHook() {
-    super.setupHook(javaClass.simpleName)
-    hook()
+    super.setupHook(this)
   }
 
+  @HookMethod
   private fun hook() {
     // val cs = MiuiSettingsClass
     // cs.MiuiMyDeviceSettings.`class`()!!.hook("onPreferenceTreeClick", C.PreferenceScreen, C.Preference, MiuiSettingsHook.onPreferenceTreeClick)

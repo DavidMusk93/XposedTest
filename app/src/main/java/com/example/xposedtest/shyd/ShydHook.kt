@@ -1,6 +1,7 @@
 package com.example.xposedtest.shyd
 
 import android.os.Process
+import com.example.xposedtest.annotation.HookMethod
 import com.example.xposedtest.utility.C
 import com.example.xposedtest.utility.getStaticField
 import com.example.xposedtest.xposed.*
@@ -30,10 +31,10 @@ class ShydHook(param: XC_LoadPackage.LoadPackageParam)
   : HookEntry(param, ShydHookContext()), IHookEntry {
 
   override fun setupHook() {
-    super.setupHook(javaClass.simpleName)
-    hook()
+    super.setupHook(this)
   }
 
+  @HookMethod
   private fun hook() {
     "com.secneo.apkwrapper.d".`class`()!!.apply {
       hook("b", hookAfter { log("(b)Result", result) })

@@ -1,6 +1,7 @@
 package com.example.xposedtest.xposed
 
 import android.widget.Toast
+import com.example.xposedtest.annotation.HookMethod
 import com.example.xposedtest.utility.DebugUtil
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import kotlinx.coroutines.Job
@@ -35,11 +36,16 @@ open class HookEntry(lpparam: XC_LoadPackage.LoadPackageParam, val context: Hook
     gLog("@${context.processName}@$tag", *param)
   }
 
-  fun setupHook(tag: String) {
-    context.baseHook(tag)
+  fun setupHook(entry: HookEntry) {
     DebugUtil.log("@@@@@@@@@@@@@@@@@@ N E W  P R O C E S S @@@@@@@@@@@@@@@@@@")
     DebugUtil.log(context.processName)
     DebugUtil.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+    context.baseHook(entry::class.java.simpleName)
+    for (method in entry::class.java.declaredMethods) {
+      method.getAnnotation(HookMethod::class.java) ?: continue
+      method.isAccessible = true
+      method.invoke(entry)
+    }
   }
 
   fun String.toast() {

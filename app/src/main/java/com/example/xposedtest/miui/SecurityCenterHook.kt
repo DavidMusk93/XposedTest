@@ -1,6 +1,7 @@
 package com.example.xposedtest.miui
 
 import android.widget.Button
+import com.example.xposedtest.annotation.HookMethod
 import com.example.xposedtest.utility.C
 import com.example.xposedtest.utility.cast
 import com.example.xposedtest.utility.getField
@@ -14,10 +15,10 @@ class SecurityCenterHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(l
   private val responseTimePool = listOf<Long>(500, 1000, 1500, 2000, 2500, 3000)
 
   override fun setupHook() {
-    super.setupHook(javaClass.simpleName)
-    hook()
+    super.setupHook(this)
   }
 
+  @HookMethod
   private fun hook() {
     "${SecurityCenter.RemoteProvider}".`class`()!!.hook("hD",
         C.String, C.Boolean,

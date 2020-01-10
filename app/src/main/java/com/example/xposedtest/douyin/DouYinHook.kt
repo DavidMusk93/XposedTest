@@ -8,11 +8,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 class DouYinHook(param: XC_LoadPackage.LoadPackageParam) : HookEntry(param, HookContext()), IHookEntry {
 
   override fun setupHook() {
-    super.setupHook(javaClass.simpleName)
-    for (method in this::class.java.declaredMethods) {
-      method.getAnnotation(HookMethod::class.java) ?: continue
-      method.invoke(this)
-    }
+    super.setupHook(this)
   }
 
   @HookMethod
@@ -58,7 +54,10 @@ class DouYinHook(param: XC_LoadPackage.LoadPackageParam) : HookEntry(param, Hook
               UrlHelper.pattern.matcher(s).apply {
                 while (find()) {
                   // log("Group", s.substring(start(), end()))
-                  log("PlayUrl", group().substringBefore("&line=") + UrlHelper.suffix)
+                  group().apply {
+                    log("Raw", this)
+                    log("PlayUrl", substringBefore("&line=") + UrlHelper.suffix)
+                  }
                 }
               }
               log("Group", "@@@@@@END")

@@ -1,5 +1,6 @@
 package com.example.xposedtest.xposed
 
+import com.example.xposedtest.annotation.HookMethod
 import com.example.xposedtest.extension.toHexList
 import com.example.xposedtest.utility.C
 import com.example.xposedtest.utility.cast
@@ -12,10 +13,10 @@ class ZuiyouHook(lpparam: XC_LoadPackage.LoadPackageParam)
     IHookEntry {
 
   override fun setupHook() {
-    super.setupHook(javaClass.simpleName)
-    hook()
+    super.setupHook(this)
   }
 
+  @HookMethod
   private fun hook() {
     "${zuiyou.ui.PageMeFragment}.h".`class`()!!.hook("onClick",
         C.View,
