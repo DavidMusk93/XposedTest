@@ -17,9 +17,15 @@ class KuaiHook(param: XC_LoadPackage.LoadPackageParam) : HookEntry(param, HookCo
         hookBefore {
           if ("${args[0]}".contains(UrlHelper.Tag.VIDEO))
             log("VideoUri", *args)
-          else {
-            log("@@@@@@@@@@@@ T E S T @@@@@@@@@@@@@", *args)
-          }
         })
+
+    "com.yxcorp.gifshow.model.CDNUrl".`class`()!!
+        .apply {
+          hook("getUrl",
+              hookAfter {
+                if ("$result".contains(UrlHelper.Tag.LIVE))
+                  log("CDNUrl", result)
+              })
+        }
   }
 }
