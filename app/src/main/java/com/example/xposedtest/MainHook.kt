@@ -8,6 +8,7 @@ import com.example.xposedtest.miui.MiuiMarketClass
 import com.example.xposedtest.miui.MiuiMarketHook
 import com.example.xposedtest.miui.SecurityCenterHook
 import com.example.xposedtest.miui.SettingsHook
+import com.example.xposedtest.module.ag.AgHook
 import com.example.xposedtest.shyd.ShydHook
 import com.example.xposedtest.tomato.TomatoHook
 import com.example.xposedtest.utility.C
@@ -112,6 +113,9 @@ class MainHook : IXposedHookLoadPackage {
 
       Ht.Package.Kuai ->
         KuaiHook(lpparam).setupHook()
+
+      Ht.Package.Ag ->
+        AgHook(lpparam).setupHook()
 
       Ht.Package.MiuiMarket -> {
         val CS = MiuiMarketClass
