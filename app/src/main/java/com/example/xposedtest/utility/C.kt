@@ -37,6 +37,8 @@ object C {
   val ContentValues = android.content.ContentValues::class.java
 
   val MenuItem = android.view.MenuItem::class.java
+  val Menu = android.view.Menu::class.java
+  val MenuInflater = android.view.MenuInflater::class.java
 
   val Parcel = android.os.Parcel::class.java
   val Parcelable = android.os.Parcelable::class.java

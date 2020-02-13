@@ -2,6 +2,8 @@ package com.example.xposedtest.miui
 
 import android.os.Bundle
 import android.preference.Preference
+import android.preference.PreferenceScreen
+import android.view.Menu
 import com.example.xposedtest.annotation.HookMethod
 import com.example.xposedtest.utility.*
 import com.example.xposedtest.xposed.*
@@ -12,6 +14,54 @@ class SettingsHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(lpparam
 
   override fun setupHook() {
     super.setupHook(this)
+  }
+
+  @HookMethod
+  private fun hookReset() {
+    val ClearFragment = "com.android.settings.MiuiMasterClear"
+
+    "com.android.settings.PrivacySettings".`class`()!!
+        .apply {
+          hook("onPreferenceTreeClick", C.PreferenceScreen, C.Preference,
+              hookBefore {
+                log("Reset@Key", *args, args[1].cast<Preference>()?.key)
+              })
+
+          hook("onCreate", C.Bundle,
+              hookAfter {
+                XposedHelpers.callMethod(thisObject, "getPreferenceScreen")
+                    .cast<PreferenceScreen>()
+                    ?.apply {
+                      val count = preferenceCount
+                      log("PrefScreen@count", count)
+                      (0 until count).reversed().forEach() {
+                        val preference = getPreference(it)
+                        if ("${preference.fragment}".equals(ClearFragment)) {
+                          removePreference(preference)
+                          return@forEach
+                        }
+                      }
+                    }
+              })
+        }
+
+    ClearFragment.`class`()!!
+        .apply {
+          //hook("onOptionsItemSelected", C.MenuItem,
+          //    hookAfter {
+          //      args[0].cast<MenuItem>()?.apply {
+          //        isVisible = false
+          //      }
+          //    })
+
+          //hook("bOZ", hookAfter { result = true })
+
+          hook("onCreateOptionsMenu", C.Menu, C.MenuInflater,
+              hookAfter {
+                /* Difference with getItem? */
+                args[0].cast<Menu>()?.findItem(1)?.isVisible = false
+              })
+        }
   }
 
   @HookMethod
