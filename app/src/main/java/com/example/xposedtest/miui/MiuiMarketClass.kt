@@ -35,6 +35,7 @@ object MiuiMarketClass {
 
   // Package Manager
   val l by lazy { "com.xiaomi.market.e.l".`class`() }
+  val UninstallAppsFragment by lazy { "com.xiaomi.market.ui.UninstallAppsFragment".`class`() }
 
   val MarketInstallerService_b by lazy { "com.xiaomi.market.installsupport.MarketInstallerService.b".`class`() }
   val lh by lazy { "com.xiaomi.market.ui.lh".`class`()!! }

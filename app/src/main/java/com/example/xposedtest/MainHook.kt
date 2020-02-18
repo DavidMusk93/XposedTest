@@ -4,19 +4,18 @@ import android.app.Activity
 import android.app.Application
 import com.example.xposedtest.douyin.DouYinHook
 import com.example.xposedtest.kuai.KuaiHook
-import com.example.xposedtest.miui.MiuiMarketClass
-import com.example.xposedtest.miui.MiuiMarketHook
 import com.example.xposedtest.miui.SecurityCenterHook
 import com.example.xposedtest.miui.SettingsHook
 import com.example.xposedtest.module.ag.AgHook
+import com.example.xposedtest.module.miui.MiuiHomeHook
+import com.example.xposedtest.module.miui.MiuiMarketHook
 import com.example.xposedtest.shyd.ShydHook
 import com.example.xposedtest.tomato.TomatoHook
-import com.example.xposedtest.utility.C
-import com.example.xposedtest.utility.DebugUtil
-import com.example.xposedtest.utility.is_N
-import com.example.xposedtest.xposed.*
+import com.example.xposedtest.xposed.HookContext
+import com.example.xposedtest.xposed.WxHook
+import com.example.xposedtest.xposed.WxHookContext
+import com.example.xposedtest.xposed.ZuiyouHook
 import de.robv.android.xposed.IXposedHookLoadPackage
-import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import kotlinx.coroutines.Job
 import java.lang.ref.WeakReference
@@ -117,55 +116,69 @@ class MainHook : IXposedHookLoadPackage {
       Ht.Package.Ag ->
         AgHook(lpparam).setupHook()
 
-      Ht.Package.MiuiMarket -> {
-        val CS = MiuiMarketClass
-        val MS = MiuiMarketHook
+      Ht.Package.MiuiHome ->
+        MiuiHomeHook(lpparam).setupHook()
 
-        fun xLog(msg: String?) = DebugUtil.log("[MiuiMarket]$msg")
+      Ht.Package.MiuiMarket ->
+        MiuiMarketHook(lpparam).setupHook()
+      //-1 -> {
+      //  val CS = MiuiMarketClass
+      //  val MS = MiuiMarketHook
 
-        with(lpparam) {
-          marketHookContext.classLoader = classLoader
-          xLog("$processName | $isFirstApplication | $appInfo")
-        }
+      //  fun xLog(msg: String?) = DebugUtil.log("[MiuiMarket]$msg")
 
-        marketHookContext.baseHook("MiuiMarketHook")
+      //  with(lpparam) {
+      //    marketHookContext.classLoader = classLoader
+      //    xLog("$processName | $isFirstApplication | $appInfo")
+      //  }
 
-        // XposedHelpers.findAndHookMethod(MiuiMarketClass.MarketPreference, "onPreferenceClick", C.Preference, MiuiMarketHook.onPreferenceClick)
-        // XposedHelpers.findAndHookMethod(MiuiMarketClass.MarketPreference, "onPreferenceChange", C.Preference, C.Object, MiuiMarketHook.onPreferenceChange)
+      //  marketHookContext.baseHook("MiuiMarketHook")
 
-        // XposedHelpers.findAndHookMethod(MiuiMarketClass.fb, "a", C.String, C.Boolean, MiuiMarketHook.preferenceForceFalse)
-        XposedHelpers.findAndHookMethod(MiuiMarketClass.MarketPreference, "i", MiuiMarketHook.filterPreferenceList)
+      //  // XposedHelpers.findAndHookMethod(MiuiMarketClass.MarketPreference, "onPreferenceClick", C.Preference, MiuiMarketHook.onPreferenceClick)
+      //  // XposedHelpers.findAndHookMethod(MiuiMarketClass.MarketPreference, "onPreferenceChange", C.Preference, C.Object, MiuiMarketHook.onPreferenceChange)
 
-        // XposedHelpers.findAndHookMethod(MiuiMarketClass.Ha, "q", MiuiMarketHook.forceReturnTrue)
-        XposedHelpers.findAndHookMethod(MiuiMarketClass.AboutPreferenceActivity, "onCreate", C.Bundle, MiuiMarketHook.disableAutoUpdateMarket)
+      //  // XposedHelpers.findAndHookMethod(MiuiMarketClass.fb, "a", C.String, C.Boolean, MiuiMarketHook.preferenceForceFalse)
+      //  XposedHelpers.findAndHookMethod(MiuiMarketClass.MarketPreference, "i", MiuiMarketHook.filterPreferenceList)
 
-        // JavaBridge (Js & Java interoperability?)
-        // XposedHelpers.findAndHookMethod(MiuiMarketClass.e, "a", MiuiMarketClass.Ibd, C.Intent, C.Int, C.Bundle, MiuiMarketHook.e_PeekIntent)
+      //  // XposedHelpers.findAndHookMethod(MiuiMarketClass.Ha, "q", MiuiMarketHook.forceReturnTrue)
+      //  XposedHelpers.findAndHookMethod(MiuiMarketClass.AboutPreferenceActivity, "onCreate", C.Bundle, MiuiMarketHook.disableAutoUpdateMarket)
 
-        // Download thread
-        XposedHelpers.findAndHookMethod(MiuiMarketClass.y_b, "a", C.String, MiuiMarketClass.DownloadInstallInfo, C.String, MiuiMarketHook.y_b_a)
+      //  /** Hook installing packages */
+      //  if (is_N()) {
+      //    // Download thread
+      //    XposedHelpers.findAndHookMethod(MiuiMarketClass.y_b, "a", C.String, MiuiMarketClass.DownloadInstallInfo, C.String, MiuiMarketHook.y_b_a)
+      //    /** Hook deleting packages */
+      //    CS.lh.hook("onClick", C.DialogInterface, C.Int, MS.peekDeletingPackage)
+      //    XposedHelpers.findAndHookMethod(MiuiMarketClass.l, "a", C.Uri, MiuiMarketClass.IPackageInstallObserver, C.String, MiuiMarketHook.PackageManagerCompat_a)
+      //    XposedHelpers.findAndHookMethod(MiuiMarketClass.Za, "b", Class::class.java, C.String, C.String, MiuiMarketHook.disableInstallPackage)
+      //  } else {
+      //    /* Download ProgressBar */
+      //    // XposedHelpers.findAndHookMethod(MiuiMarketClass.downloadinstall_G, "a", C.String, C.Int, C.Int, C.Long, C.Long, MiuiMarketHook.dumpArgument)
 
-        /** Hook deleting packages */
-        CS.lh.hook("onClick", C.DialogInterface, C.Int, MS.peekDeletingPackage)
+      //    /* Download & Install stage */
+      //    // CS.TaskManager.hook("a", CS.DownloadInstallInfo, CS.TaskStep, MS.taskManagerDispatcher)
 
-        /** Hook installing packages */
-        if (is_N()) {
-          XposedHelpers.findAndHookMethod(MiuiMarketClass.l, "a", C.Uri, MiuiMarketClass.IPackageInstallObserver, C.String, MiuiMarketHook.PackageManagerCompat_a)
-          XposedHelpers.findAndHookMethod(MiuiMarketClass.Za, "b", Class::class.java, C.String, C.String, MiuiMarketHook.disableInstallPackage)
-        } else {
-          /* Download ProgressBar */
-          // XposedHelpers.findAndHookMethod(MiuiMarketClass.downloadinstall_G, "a", C.String, C.Int, C.Int, C.Long, C.Long, MiuiMarketHook.dumpArgument)
+      //    /* This is a critical function! (hook check?) */
+      //    // CS.downloadinstall_A!!.hook("a", C.Int, CommonHook.dumpRes)
 
-          /* Download & Install stage */
-          // CS.TaskManager.hook("a", CS.DownloadInstallInfo, CS.TaskStep, MS.taskManagerDispatcher)
+      //    //CS.downloadinstall_l_b!!.hook("a", CS.DownloadInstallInfo, MS.startInstall)
+      //    /** Hot fix? */
+      //    //CS.downloadinstall_M!!.hook("a", CS.downloadinstall_q, C.PackageInstaller, MS.preventInstall)
 
-          /* This is a critical function! (hook check?) */
-          // CS.downloadinstall_A!!.hook("a", C.Int, CommonHook.dumpRes)
-
-          CS.downloadinstall_l_b!!.hook("a", CS.DownloadInstallInfo, MS.startInstall)
-          CS.downloadinstall_M!!.hook("a", CS.downloadinstall_q, C.PackageInstaller, MS.preventInstall)
-        }
-      }
+      //    /** NOTE (market_10.1.16.923):
+      //     * com.xiaomi.market.downloadinstall.N.a(List<String> list)
+      //     */
+      //    CS.UninstallAppsFragment!!.hook("r",
+      //        hookBefore {
+      //          gLog("@UninstallAppsFragment", thisObject.getField("Q"))
+      //          thisObject.getField<MutableList<String>>("Q")?.apply {
+      //            MiuiMarketHook.protectionPackage.forEach {
+      //              remove(it)
+      //            }
+      //          }
+      //        })
+      //  }
+      //}
     }
   }
 }

@@ -19,6 +19,22 @@ class SecurityCenterHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(l
   }
 
   @HookMethod
+  private fun hookUninstall() {
+    val protectAppList = listOf("com.example.xposedtest")
+
+    "com.miui.appmanager.ApplicationsDetailsActivity".`class`()!!
+        .apply {
+          hook("aQe", C.String, C.Int,
+              hookBefore {
+                log("Uninstall", *args)
+                //log("Uninstall@aCf", thisObject.getField("aCf"))
+                if (protectAppList.contains("${args[0]}"))
+                  args[0] = null
+              })
+        }
+  }
+
+  @HookMethod
   private fun hook() {
     "${SecurityCenter.RemoteProvider}".`class`()!!.hook("hD",
         C.String, C.Boolean,

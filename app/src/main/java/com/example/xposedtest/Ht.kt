@@ -23,5 +23,7 @@ object Ht {
         by lazy { "com.smile.gifmaker".hashCode() }
     val Ag: Int
         by lazy { "com.linkfungame.ag".hashCode() }
+    val MiuiHome: Int
+        by lazy { "com.miui.home".hashCode() }
   }
 }

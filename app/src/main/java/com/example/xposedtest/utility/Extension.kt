@@ -40,8 +40,10 @@ fun String.toFile(path: String) {
   }
 }
 
+fun Any.getClassNameFromObject() = "$this".substringAfter(' ').substringBeforeLast('@')
+
 inline fun <reified T> Any.getField(field: String): T? {
-  return XposedHelpers.getObjectField(this, field) as T
+  return XposedHelpers.getObjectField(this, field).cast()
 }
 
 inline fun <reified T> Any.setField(field: String, t: T) {
@@ -55,3 +57,7 @@ inline fun <reified T> Class<*>.getStaticField(field: String): T? {
 inline fun <reified T> Class<*>.setStaticField(field: String, t: T) {
   XposedHelpers.setStaticObjectField(this, field, t)
 }
+
+fun Any.callMethod(name: String, vararg args: Any?) = XposedHelpers.callMethod(this, name, *args)
+
+fun Class<*>.callStaticMethod(name: String, vararg args: Any?) = XposedHelpers.callStaticMethod(this, name, *args)

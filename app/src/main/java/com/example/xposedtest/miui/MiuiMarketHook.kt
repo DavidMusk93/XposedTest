@@ -131,7 +131,8 @@ object MiuiMarketHook {
   val protectionPackage = listOf(
       "com.topjohnwu.magisk",
       "org.meowcat.edxposed.manager",
-      "com.example.xposedtest"
+      "com.example.xposedtest",
+      "com.example.miinfo" // Test purpose
   )
 
   val peekDeletingPackage = hookBefore {

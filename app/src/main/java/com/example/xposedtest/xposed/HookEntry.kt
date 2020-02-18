@@ -19,14 +19,36 @@ class ToastContext(var start: Long, var job: Job? = null) {
 
 }
 
-open class HookEntry(lpparam: XC_LoadPackage.LoadPackageParam, val context: HookContext) {
+open class HookEntry(lpparam: XC_LoadPackage.LoadPackageParam, val context: HookContext, vararg ext: Any) {
 
   private val toastContext = ToastContext(System.currentTimeMillis())
+
+  private var app_version_: String? = null
 
   init {
     context.classLoader = lpparam.classLoader
     context.processName = lpparam.processName
+    context.packageName = lpparam.packageName
   }
+
+  val packageName: String
+    get() = context.packageName ?: "UNKNOWN"
+
+  val appVersion: String?
+    get() {
+      if (app_version_ != null)
+        return app_version_
+      if (context.packageName == null)
+        return null
+      context.ref?.get()
+          ?.packageManager
+          ?.getPackageInfo(context.packageName, 0)
+          ?.apply {
+            app_version_ = versionName
+            return versionName
+          }
+      return null
+    }
 
   fun String.`class`(): Class<*>? {
     return context.findClass(this)

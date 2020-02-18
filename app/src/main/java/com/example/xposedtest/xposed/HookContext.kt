@@ -10,7 +10,8 @@ import java.lang.ref.WeakReference
 open class HookContext(
     var ref: WeakReference<Application>? = null,
     var classLoader: ClassLoader? = null,
-    var processName: String? = null
+    var processName: String? = null,
+    var packageName: String? = null
 ) : BaseHook, IReinfore {
 
   lateinit var realClassLoader: ClassLoader
