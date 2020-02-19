@@ -1,11 +1,9 @@
 package com.example.xposedtest.module.miui
 
 import android.content.pm.PackageInfo
+import android.preference.PreferenceActivity
 import com.example.xposedtest.annotation.HookMethod
-import com.example.xposedtest.utility.C
-import com.example.xposedtest.utility.callMethod
-import com.example.xposedtest.utility.getClassNameFromObject
-import com.example.xposedtest.utility.getField
+import com.example.xposedtest.utility.*
 import com.example.xposedtest.xposed.*
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
@@ -35,6 +33,7 @@ class MiuiMarketHook(lpparm: XC_LoadPackage.LoadPackageParam)
 
   val ctx = NestedHookContext()
   val dynamicHookCtx = MarketDynamicHookContext()
+  val installHookCtx = MarketInstallHookContext()
 
   @HookMethod
   private fun hookUninstall() {
@@ -138,6 +137,68 @@ class MiuiMarketHook(lpparm: XC_LoadPackage.LoadPackageParam)
                         }
                       }
                 }.onFailure { log("ClickItem@Failure", it) }
+              })
+        }
+  }
+
+  @HookMethod
+  private fun hookPreference() {
+    "$packageName.ui.MarketPreference".`class`()!!
+        .apply {
+          hook("i", hookAfter {
+            result.cast<MutableList<String>>()?.apply {
+              Config.Preference.filterList.forEach {
+                remove(it)
+              }
+            }
+          })
+        }
+
+    "$packageName.ui.AboutPreferenceActivity".`class`()!!
+        .apply {
+          hook("onCreate", C.Bundle,
+              hookAfter {
+                thisObject.cast<PreferenceActivity>()?.apply {
+                  findPreference(Config.Preference.keyOfAutoUpdateMarket).let {
+                    preferenceScreen.removePreference(it)
+                  }
+                }
+              })
+        }
+  }
+
+  @HookMethod
+  private fun hookInstall() {
+    val q = "$packageName.downloadinstall.q".`class`() ?: return
+    "$packageName.downloadinstall.L".`class`()!!
+        .apply {
+          hook("a", q, C.PackageInstaller,
+              hookBoth({
+                log("downloadinstall@a", *args)
+                installHookCtx.update(q)
+                installHookCtx.preventInstall(args[0])
+                //kotlin.runCatching {
+                //  throw Exception("TrivialException")
+                //}.onFailure {
+                //  for (i in it.stackTrace) {
+                //    log("StackTrace", i)
+                //  }
+                //}
+              }, {
+                if (installHookCtx.prevent) {
+                  result = false
+                }
+              })
+          )
+        }
+
+    "$packageName.downloadinstall.z".`class`()!!
+        .apply {
+          hook("d", q,
+              hookBefore {
+                log("downloadinstall@d", *args)
+                installHookCtx.update(q)
+                installHookCtx.preventInstall(args[0])
               })
         }
   }

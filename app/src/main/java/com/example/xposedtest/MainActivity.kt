@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Process
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
@@ -185,24 +184,6 @@ class MainActivity : AppCompatActivity() {
     return null
   }
 
-  // @Throws(IOException::class)
-  // fun loadApkPath() {
-  //   val path by pathLazy("/data/data/${BuildConfig.APPLICATION_ID}/conf")
-  //   val writer = File("$path/modules.list").printWriter()
-  //   packageManager.getInstalledPackages(PackageManager.GET_META_DATA)
-  //       .forEach {
-  //         it.applicationInfo
-  //             .let { info ->
-  //               // Filter by meta data
-  //               if (info.metaData != null && info.metaData.containsKey("xposedmodule")) {
-  //                 writer.println(info.sourceDir)
-  //                 Log.d(TAG, info.sourceDir)
-  //               }
-  //             }
-  //       }
-  //   writer.close()
-  // }
-
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
     val inflater = menuInflater
     inflater.inflate(R.menu.menu_main, menu)
@@ -229,19 +210,6 @@ class MainActivity : AppCompatActivity() {
       }
       else -> return super.onOptionsItemSelected(item)
     }
-  }
-
-  private fun checkStack() {
-    try {
-      throw Exception("XposedDetection")
-    } catch (e: Exception) {
-      Log.d(TAG, "checkStack: ######start")
-      for (stackTraceElement in e.stackTrace) {
-        Log.d(TAG, "checkStack: #" + stackTraceElement.className + "-->" + stackTraceElement.methodName)
-      }
-      Log.d(TAG, "checkStack: ######end")
-    }
-
   }
 
   companion object {
