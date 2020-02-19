@@ -25,5 +25,7 @@ object Ht {
         by lazy { "com.linkfungame.ag".hashCode() }
     val MiuiHome: Int
         by lazy { "com.miui.home".hashCode() }
+    val PackageInstaller: Int
+        by lazy { "com.miui.packageinstaller".hashCode() }
   }
 }

@@ -9,6 +9,7 @@ import com.example.xposedtest.miui.SettingsHook
 import com.example.xposedtest.module.ag.AgHook
 import com.example.xposedtest.module.miui.MiuiHomeHook
 import com.example.xposedtest.module.miui.MiuiMarketHook
+import com.example.xposedtest.module.miui.PackageInstallerHook
 import com.example.xposedtest.shyd.ShydHook
 import com.example.xposedtest.tomato.TomatoHook
 import com.example.xposedtest.xposed.HookContext
@@ -121,6 +122,9 @@ class MainHook : IXposedHookLoadPackage {
 
       Ht.Package.MiuiMarket ->
         MiuiMarketHook(lpparam).setupHook()
+
+      Ht.Package.PackageInstaller ->
+        PackageInstallerHook(lpparam).setupHook()
     }
   }
 }
