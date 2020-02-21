@@ -5,7 +5,8 @@ import android.preference.Preference
 import android.preference.PreferenceScreen
 import android.view.Menu
 import com.example.xposedtest.annotation.HookMethod
-import com.example.xposedtest.utility.*
+import com.example.xposedtest.utility.C
+import com.example.xposedtest.utility.cast
 import com.example.xposedtest.xposed.*
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
@@ -72,23 +73,23 @@ class SettingsHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(lpparam
 
     val context = UpgradeContext()
 
-    "${Settings()["device"][if (is_N()) "s" else "r"]}".`class`()!!
-        .hook("onClick",
-            C.View,
-            hookBoth({
-              thisObject.getField<Any>(context.s1)
-                  ?.run {
-                    val b = getField<Boolean>(context.s2) ?: return@run
-                    if (b) {
-                      setField(context.s2, false)
-                      context.obj = this
-                      "Upgrade is disabled!".toast2()
-                    }
-                  }
-            }, {
-              context.obj
-                  ?.run { setField(context.s2, true) }
-            }))
+    //"${Settings()["device"][if (is_N()) "s" else "r"]}".`class`()!!
+    //    .hook("onClick",
+    //        C.View,
+    //        hookBoth({
+    //          thisObject.getField<Any>(context.s1)
+    //              ?.run {
+    //                val b = getField<Boolean>(context.s2) ?: return@run
+    //                if (b) {
+    //                  setField(context.s2, false)
+    //                  context.obj = this
+    //                  "Upgrade is disabled!".toast2()
+    //                }
+    //              }
+    //        }, {
+    //          context.obj
+    //              ?.run { setField(context.s2, true) }
+    //       }))
 
     "${Settings()["development"]["DevelopmentSettings"]}".`class`()!!.let { clazz ->
       clazz.hook("H",

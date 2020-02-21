@@ -27,5 +27,7 @@ object Ht {
         by lazy { "com.miui.home".hashCode() }
     val PackageInstaller: Int
         by lazy { "com.miui.packageinstaller".hashCode() }
+    val Updater: Int
+        by lazy { "com.android.updater".hashCode() }
   }
 }

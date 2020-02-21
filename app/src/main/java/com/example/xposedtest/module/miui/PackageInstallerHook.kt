@@ -1,6 +1,5 @@
 package com.example.xposedtest.module.miui
 
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.view.View
 import android.widget.Button

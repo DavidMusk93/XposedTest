@@ -2,6 +2,7 @@ package com.example.xposedtest.utility
 
 import android.content.DialogInterface
 import android.content.pm.PackageInstaller
+import android.util.ArrayMap
 
 object C {
   val Int = Int::class.java
@@ -62,4 +63,6 @@ object C {
   val PackageInstaller by lazy { PackageInstaller::class.java }
 
   val ClassLoader by lazy { ClassLoader::class.java }
+  val HashMap by lazy { HashMap::class.java }
+  val ArrayMap by lazy { ArrayMap::class.java }
 }
