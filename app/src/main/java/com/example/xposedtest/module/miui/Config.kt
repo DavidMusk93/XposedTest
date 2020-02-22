@@ -1,10 +1,12 @@
 package com.example.xposedtest.module.miui
 
+import com.example.xposedtest.utility.cast
+
 object Config {
 
   object Package {
 
-    val protectionAppList = listOf(
+    val protectAppList = listOf(
         "com.example.xposedtest",
         "com.example.miinfo" // Test case
     )
@@ -13,6 +15,15 @@ object Config {
         "com.ss.android.ugc.aweme",
         "com.smile.gifmaker"
     )
+
+    fun isProtectApp(pkg: Any?): Boolean {
+      pkg.cast<String>()?.apply {
+        if (protectAppList.contains(this)) {
+          return true
+        }
+      }
+      return false
+    }
   }
 
   object Preference {

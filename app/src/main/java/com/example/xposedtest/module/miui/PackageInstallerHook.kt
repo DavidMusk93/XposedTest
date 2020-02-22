@@ -52,7 +52,7 @@ class PackageInstallerHook(lpparam: XC_LoadPackage.LoadPackageParam)
               hookBefore {
                 log("Click", *args)
                 val pkg = thisObject.getField<String>("mPackageName") ?: return@hookBefore
-                if (Config.Package.protectionAppList.contains(pkg)) {
+                if (Config.Package.protectAppList.contains(pkg)) {
                   val id = args[0].cast<View>()?.id ?: return@hookBefore
                   if (id.and(1) == 1) {
                     args[0] = thisObject.callMethod("findViewById", id - 1)

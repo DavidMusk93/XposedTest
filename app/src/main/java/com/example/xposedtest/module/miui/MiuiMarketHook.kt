@@ -87,7 +87,7 @@ class MiuiMarketHook(lpparm: XC_LoadPackage.LoadPackageParam)
                             hookBefore {
                               ctx.fragment?.getField<MutableList<String>>(ctx.f1)?.apply {
                                 log("UninstallThread", this)
-                                Config.Package.protectionAppList.forEach {
+                                Config.Package.protectAppList.forEach {
                                   remove(it)
                                 }
                               }
@@ -130,7 +130,7 @@ class MiuiMarketHook(lpparm: XC_LoadPackage.LoadPackageParam)
                               ?.packageName
                         }
                         packageName?.apply {
-                          if (Config.Package.protectionAppList.contains(this)) {
+                          if (Config.Package.protectAppList.contains(this)) {
                             args[1] = false
                             "Uninstall $packageName is disabled!".toast2()
                           }
