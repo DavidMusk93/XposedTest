@@ -29,7 +29,8 @@ import java.lang.ref.WeakReference
 class MainHook : IXposedHookLoadPackage {
 
   private val hookClassSet = listOf(
-      SoundRecorderHook::class.java
+      SoundRecorderHook::class.java,
+      SecurityCenterHook::class.java
   )
 
   private val hookClassMap = mutableMapOf<Int, Class<*>>().apply {
@@ -39,7 +40,6 @@ class MainHook : IXposedHookLoadPackage {
       }
     }
   }
-
 
   companion object {
     var mainDatabase: Any? = null
@@ -125,9 +125,6 @@ class MainHook : IXposedHookLoadPackage {
 
       Ht.Package.MiuiSettings ->
         SettingsHook(lpparam).setupHook()
-
-      Ht.Package.SecurityCenter ->
-        SecurityCenterHook(lpparam).setupHook()
 
       Ht.Package.DouYin ->
         DouYinHook(lpparam).setupHook()

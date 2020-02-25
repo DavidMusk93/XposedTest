@@ -1,15 +1,19 @@
 package com.example.xposedtest.miui
 
 import android.widget.Button
+import com.example.xposedtest.annotation.HookClass
 import com.example.xposedtest.annotation.HookMethod
+import com.example.xposedtest.module.miui.Config
 import com.example.xposedtest.utility.C
 import com.example.xposedtest.utility.cast
 import com.example.xposedtest.utility.getField
+import com.example.xposedtest.utility.setField
 import com.example.xposedtest.xposed.*
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import kotlinx.coroutines.*
 
+@HookClass("com.miui.securitycenter")
 class SecurityCenterHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(lpparam, HookContext()), IHookEntry {
 
   private val responseTimePool = listOf<Long>(500, 1000, 1500, 2000, 2500, 3000)
@@ -20,7 +24,7 @@ class SecurityCenterHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(l
 
   @HookMethod
   private fun hookUninstall() {
-    val protectAppList = listOf("com.example.xposedtest")
+    var cachedPackageName: String? = null
 
     "com.miui.appmanager.ApplicationsDetailsActivity".`class`()!!
         .apply {
@@ -28,9 +32,23 @@ class SecurityCenterHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(l
               hookBefore {
                 log("Uninstall", *args)
                 //log("Uninstall@aCf", thisObject.getField("aCf"))
-                if (protectAppList.contains("${args[0]}"))
+                if (Config.Package.isProtectApp(args[0]))
                   args[0] = null
               })
+
+          hook("aPD", hookBoth({
+            cachedPackageName = thisObject.getField("mPackageName")
+            if (Config.Package.isProtectApp(cachedPackageName)) {
+              thisObject.setField("mPackageName", "com.jeejen.family.miui")
+            } else {
+              cachedPackageName = null
+            }
+          }, {
+            if (cachedPackageName != null) {
+              thisObject.setField("mPackageName", cachedPackageName)
+              cachedPackageName = null
+            }
+          }))
         }
   }
 
