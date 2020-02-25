@@ -2,10 +2,12 @@ package com.example.xposedtest
 
 import android.app.Activity
 import android.app.Application
+import com.example.xposedtest.annotation.HookClass
 import com.example.xposedtest.douyin.DouYinHook
 import com.example.xposedtest.kuai.KuaiHook
 import com.example.xposedtest.miui.SecurityCenterHook
 import com.example.xposedtest.miui.SettingsHook
+import com.example.xposedtest.miui.SoundRecorderHook
 import com.example.xposedtest.module.ag.AgHook
 import com.example.xposedtest.module.miui.MiuiHomeHook
 import com.example.xposedtest.module.miui.MiuiMarketHook
@@ -13,16 +15,32 @@ import com.example.xposedtest.module.miui.PackageInstallerHook
 import com.example.xposedtest.module.miui.UpdaterHook
 import com.example.xposedtest.shyd.ShydHook
 import com.example.xposedtest.tomato.TomatoHook
+import com.example.xposedtest.utility.callMethod
 import com.example.xposedtest.xposed.HookContext
 import com.example.xposedtest.xposed.WxHook
 import com.example.xposedtest.xposed.WxHookContext
 import com.example.xposedtest.xposed.ZuiyouHook
 import de.robv.android.xposed.IXposedHookLoadPackage
+import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import kotlinx.coroutines.Job
 import java.lang.ref.WeakReference
 
 class MainHook : IXposedHookLoadPackage {
+
+  private val hookClassSet = listOf(
+      SoundRecorderHook::class.java
+  )
+
+  private val hookClassMap = mutableMapOf<Int, Class<*>>().apply {
+    hookClassSet.forEach {
+      it.getAnnotation(HookClass::class.java)?.let { clz ->
+        this[clz.pkg.hashCode()] = it
+      }
+    }
+  }
+
+
   companion object {
     var mainDatabase: Any? = null
 
@@ -50,6 +68,14 @@ class MainHook : IXposedHookLoadPackage {
   }
 
   override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
+
+    val hash = lpparam.packageName.hashCode()
+
+    if (hookClassMap.contains(hash)) {
+      XposedHelpers.newInstance(hookClassMap[hash], lpparam).callMethod("setupHook")
+      return
+    }
+
     when (lpparam.packageName.hashCode()) {
       // Ht.Package.WeChat -> {
       //   fun xLog(msg: String?) = DebugUtil.log("[handleLoadPackage]$msg")
