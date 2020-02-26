@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import com.example.xposedtest.R
@@ -13,7 +14,21 @@ import com.example.xposedtest.R
 class DaemonService : Service() {
 
   companion object {
-    val NOTICE_ID = 100
+    val NOTICE_ID = 1000
+
+    val defaultChannel: NotificationChannel by lazy {
+      NotificationChannel("x001", "Message Notification", NotificationManager.IMPORTANCE_DEFAULT)
+          .apply { description = "New message notifications" }
+    }
+
+    fun getNotificationBuilder(context: Context, manager: NotificationManager): Notification.Builder {
+      return if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
+        manager.createNotificationChannel(defaultChannel)
+        Notification.Builder(context, defaultChannel.id)
+      } else {
+        Notification.Builder(context)
+      }
+    }
   }
 
   private val TAG: String = "DaemonService"
@@ -28,15 +43,10 @@ class DaemonService : Service() {
     super.onCreate()
     Log.d(TAG, "onCreate")
     notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-      val channel = NotificationChannel("sun@1", "fake", NotificationManager.IMPORTANCE_DEFAULT)
-      channel.description = "a trivial channel"
-      notificationManager.createNotificationChannel(channel)
-    }
-    val builder = Notification.Builder(this, "sun@1")
+    val builder = getNotificationBuilder(this, notificationManager)
         .setSmallIcon(R.mipmap.ic_launcher)
-        .setContentTitle("fake title")
-        .setContentText("test only")
+        .setContentTitle("Keep Alive")
+        .setContentText("Daemon service is running...")
     startForeground(NOTICE_ID, builder.build())
     startService(Intent(this, CancelNoticeService::class.java))
   }

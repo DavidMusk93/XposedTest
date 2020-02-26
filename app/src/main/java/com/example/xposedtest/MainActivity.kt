@@ -14,7 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.example.xposedtest.extension.toByteArray
 import com.example.xposedtest.extension.toast
-import com.example.xposedtest.service.DaemonService
+import com.example.xposedtest.service.CancelNoticeService
 import com.example.xposedtest.utility.FsUtil.Companion.pathLazy
 import com.example.xposedtest.utility.basename
 import com.example.xposedtest.xposed.UpdateModule
@@ -141,7 +141,7 @@ class MainActivity : AppCompatActivity() {
       }.onFailure { gLog("@sign", "sign failed: ${it.message}") }
     }.start()
 
-    startService(Intent(this, DaemonService::class.java))
+    startService(Intent(this, CancelNoticeService::class.java))
   }
 
   private fun checkZipEntry(apk: String) {

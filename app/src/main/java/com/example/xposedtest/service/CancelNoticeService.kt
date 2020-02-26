@@ -1,7 +1,5 @@
 package com.example.xposedtest.service
 
-import android.app.Notification
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
@@ -9,11 +7,14 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import com.example.xposedtest.R
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class CancelNoticeService : Service() {
+
+  private val TAG = "CancelNoticeService"
 
   private lateinit var notificationManager: NotificationManager
 
@@ -23,25 +24,34 @@ class CancelNoticeService : Service() {
 
   override fun onCreate() {
     super.onCreate()
+    Log.i(TAG, "onCreate")
     notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-      val channel = NotificationChannel("sun@2", "fake2", NotificationManager.IMPORTANCE_DEFAULT)
-      channel.description = "a trivial channel2"
-      notificationManager.createNotificationChannel(channel)
-    }
-    val builder = Notification.Builder(this, "sun@2")
+    val builder = DaemonService.getNotificationBuilder(this, notificationManager)
         .setSmallIcon(R.mipmap.ic_launcher)
+        .setContentTitle("Cancel Notice")
+        .setContentText("Disappear after 1 second")
+        .setAutoCancel(true)
     startForeground(DaemonService.NOTICE_ID, builder.build())
-    GlobalScope.launch { stop() }
+  }
+
+  override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    Log.i(TAG, "onStartCommand")
+    CoroutineScope(Dispatchers.Unconfined).launch { stop() }
+    return super.onStartCommand(intent, flags, startId)
   }
 
   private suspend fun stop() {
     delay(1000)
     kotlin.runCatching {
-      Log.i("CancelNoticeService", "stop service")
+      Log.i(TAG, "Stop service")
       stopForeground(true)
       notificationManager.cancel(DaemonService.NOTICE_ID)
       stopSelf()
     }.onFailure { Log.w("CancelNoticeService", "Failure:$it") }
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    Log.i(TAG, "onDestroy")
   }
 }
