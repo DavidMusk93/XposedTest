@@ -19,6 +19,18 @@
             </intent-filter>
         </activity>
 
+        <service
+            android:name=".service.DaemonService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":daemon_service" />
+
+        <service
+            android:name=".service.CancelNoticeService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":tmp_service" />
+
         <meta-data
             android:name="xposeddescription"
             android:value="H E L L O  X P O S E D" />

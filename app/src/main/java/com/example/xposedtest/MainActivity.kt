@@ -2,6 +2,7 @@ package com.example.xposedtest
 
 import android.Manifest
 import android.content.ComponentName
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Process
@@ -13,6 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.example.xposedtest.extension.toByteArray
 import com.example.xposedtest.extension.toast
+import com.example.xposedtest.service.DaemonService
 import com.example.xposedtest.utility.FsUtil.Companion.pathLazy
 import com.example.xposedtest.utility.basename
 import com.example.xposedtest.xposed.UpdateModule
@@ -138,6 +140,8 @@ class MainActivity : AppCompatActivity() {
             }
       }.onFailure { gLog("@sign", "sign failed: ${it.message}") }
     }.start()
+
+    startService(Intent(this, DaemonService::class.java))
   }
 
   private fun checkZipEntry(apk: String) {
