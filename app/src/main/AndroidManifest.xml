@@ -14,10 +14,18 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver
+            android:name=".receiver.DaemonReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="restart_service" />
+            </intent-filter>
+        </receiver>
 
         <service
             android:name=".service.DaemonService"
@@ -42,7 +50,7 @@
             android:name="xposedmodule"
             android:value="true" />
 
-        <receiver android:name=".LaunchAppViaDialReceiver">
+        <receiver android:name=".receiver.LaunchAppViaDialReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
             </intent-filter>

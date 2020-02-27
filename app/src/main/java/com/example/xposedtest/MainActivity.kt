@@ -13,7 +13,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import com.example.xposedtest.extension.toast
-import com.example.xposedtest.service.CancelNoticeService
+import com.example.xposedtest.service.DaemonService
 import com.example.xposedtest.xposed.UpdateModule
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.topjohnwu.superuser.Shell
@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
       UpdateModule.reboot(this)
     }
 
-    startService(Intent(this, CancelNoticeService::class.java))
+    startService(Intent(this, DaemonService::class.java))
   }
 
   private fun getField(obj: Any, name: String): Field? {

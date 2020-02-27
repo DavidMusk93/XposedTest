@@ -1,10 +1,11 @@
-package com.example.xposedtest
+package com.example.xposedtest.receiver
 
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import com.example.xposedtest.MainActivity
 import java.lang.ref.WeakReference
 
 class LaunchAppViaDialReceiver : BroadcastReceiver() {

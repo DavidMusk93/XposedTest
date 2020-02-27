@@ -5,6 +5,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import android.os.Process
 import android.util.Log
 import com.example.xposedtest.R
 import kotlinx.coroutines.CoroutineScope
@@ -41,7 +42,7 @@ class CancelNoticeService : Service() {
   }
 
   private suspend fun stop() {
-    delay(1000)
+    delay(2000)
     kotlin.runCatching {
       Log.i(TAG, "Stop service")
       stopForeground(true)
@@ -53,5 +54,6 @@ class CancelNoticeService : Service() {
   override fun onDestroy() {
     super.onDestroy()
     Log.i(TAG, "onDestroy")
+    Process.killProcess(Process.myPid())
   }
 }

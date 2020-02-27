@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import com.example.xposedtest.R
+import com.example.xposedtest.receiver.DaemonReceiver
 
 class DaemonService : Service() {
 
@@ -59,7 +60,9 @@ class DaemonService : Service() {
     super.onDestroy()
     Log.d(TAG, "onDestroy")
     notificationManager.cancel(NOTICE_ID)
-    val intent = Intent(applicationContext, DaemonService::class.java)
-    startService(intent)
+    sendBroadcast(Intent().apply {
+      action = "restart_service"
+      setClass(this@DaemonService, DaemonReceiver::class.java)
+    })
   }
 }
