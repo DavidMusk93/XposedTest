@@ -13,7 +13,7 @@ import android.widget.Button
 import android.widget.TextView
 import com.example.xposedtest.extension.toast
 import com.example.xposedtest.service.DaemonService
-import com.example.xposedtest.xposed.UpdateModule
+import com.example.xposedtest.utility.ModuleHelper
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.topjohnwu.superuser.Shell
 
@@ -69,10 +69,10 @@ class MainActivity : AppCompatActivity() {
           }
         }.dispose()
 
-    UpdateModule.update(applicationInfo.sourceDir)
+    ModuleHelper.updateList(this)
 
     quitButton.setOnClickListener {
-      UpdateModule.reboot(this)
+      ModuleHelper.reboot(this)
     }
 
     startService(Intent(this, DaemonService::class.java))

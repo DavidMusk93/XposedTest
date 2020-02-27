@@ -1,6 +1,7 @@
 package com.example.xposedtest.utility
 
 import android.os.Environment
+import com.example.xposedtest.BuildConfig
 import java.io.File
 
 class FsUtil {
@@ -21,6 +22,7 @@ class FsUtil {
     val RoomLogPath by pathLazy("${Environment.getExternalStorageDirectory()}/wxbridge/RoomLogDir")
     val BizPath by pathLazy("${Environment.getExternalStorageDirectory()}/wxbridge/BizDir")
     val ViewHookLockFile by lazy { "$BizPath/view_hook.lock" }
+    val XPOSED_CONF by pathLazy("/data/data/${BuildConfig.APPLICATION_ID}/conf")
 
     fun saveStringToFile(text: String, filename: String) {
       try {

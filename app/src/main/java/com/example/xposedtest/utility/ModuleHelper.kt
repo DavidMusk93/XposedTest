@@ -1,12 +1,14 @@
-package com.example.xposedtest.xposed
+package com.example.xposedtest.utility
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
+import android.content.pm.PackageManager
 import com.example.xposedtest.R
-import com.example.xposedtest.utility.is_N
 import com.topjohnwu.superuser.Shell
+import java.io.File
 
-object UpdateModule {
+object ModuleHelper {
 
   val XLIST by lazy {
     if (is_N())
@@ -15,7 +17,12 @@ object UpdateModule {
       "/data/user_de/0/org.meowcat.edxposed.manager/conf/modules.list"
   }
 
-  fun update(sourceDir: String) {
+  fun updateList(context: Context) {
+    updateXposedList(context.applicationInfo.sourceDir)
+    updateSelfList(context)
+  }
+
+  fun updateXposedList(sourceDir: String) {
     val appDirectoryPrefix = "/data/app/${com.example.xposedtest.BuildConfig.APPLICATION_ID}-"
     var modules = Shell.su("cat $XLIST").exec()
         .out
@@ -28,6 +35,19 @@ object UpdateModule {
 
     // Shell.su("echo ${modules.joinToString("\n")} > $XLIST").exec()
     Shell.su(">$XLIST && for i in $modules; do echo \$i >> $XLIST; done").exec()
+  }
+
+  fun updateSelfList(context: Context) {
+    val writer = File(FsUtil.XPOSED_CONF + "/modules.list").printWriter()
+    context.packageManager.getInstalledPackages(PackageManager.GET_META_DATA)
+        .forEach {
+          it.applicationInfo.apply {
+            if (metaData != null && metaData.containsKey("xposedmodule")) {
+              writer.println(sourceDir)
+            }
+          }
+        }
+    writer.close()
   }
 
   fun reboot(activity: Activity) {
