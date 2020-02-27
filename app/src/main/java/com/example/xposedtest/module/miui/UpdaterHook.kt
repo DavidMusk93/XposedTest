@@ -1,10 +1,12 @@
 package com.example.xposedtest.module.miui
 
+import com.example.xposedtest.annotation.HookClass
 import com.example.xposedtest.annotation.HookMethod
 import com.example.xposedtest.utility.C
 import com.example.xposedtest.xposed.*
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
+@HookClass("com.android.updater")
 class UpdaterHook(lppram: XC_LoadPackage.LoadPackageParam)
   : HookEntry(lppram, HookContext()), IHookEntry {
 

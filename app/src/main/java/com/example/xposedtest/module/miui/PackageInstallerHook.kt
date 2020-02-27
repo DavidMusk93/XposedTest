@@ -3,6 +3,7 @@ package com.example.xposedtest.module.miui
 import android.content.pm.PackageInfo
 import android.view.View
 import android.widget.Button
+import com.example.xposedtest.annotation.HookClass
 import com.example.xposedtest.annotation.HookMethod
 import com.example.xposedtest.utility.C
 import com.example.xposedtest.utility.callMethod
@@ -11,6 +12,7 @@ import com.example.xposedtest.utility.getField
 import com.example.xposedtest.xposed.*
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
+@HookClass("com.miui.packageinstaller")
 class PackageInstallerHook(lpparam: XC_LoadPackage.LoadPackageParam)
   : HookEntry(lpparam, HookContext()), IHookEntry {
 

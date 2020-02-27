@@ -2,6 +2,7 @@ package com.example.xposedtest.module.miui
 
 import android.content.pm.PackageInfo
 import android.preference.PreferenceActivity
+import com.example.xposedtest.annotation.HookClass
 import com.example.xposedtest.annotation.HookMethod
 import com.example.xposedtest.utility.*
 import com.example.xposedtest.xposed.*
@@ -15,6 +16,7 @@ class NestedHookContext(
     var fragment: Any? = null
 )
 
+@HookClass("com.xiaomi.market")
 class MiuiMarketHook(lpparm: XC_LoadPackage.LoadPackageParam)
   : HookEntry(lpparm, HookContext()), IHookEntry {
 
