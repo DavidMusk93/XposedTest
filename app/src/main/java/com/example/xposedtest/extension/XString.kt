@@ -25,7 +25,7 @@ fun String.dirname(): String? {
   return null
 }
 
-fun String.toast(context: Context) = Toast.makeText(context, this, Toast.LENGTH_SHORT)
+fun String.toast(context: Context) = Toast.makeText(context, this, Toast.LENGTH_SHORT).show()
 
 @Throws(IOException::class)
 fun <T, R> String.loadMap(): Map<T, R>? {

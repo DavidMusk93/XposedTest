@@ -11,14 +11,11 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import com.example.xposedtest.extension.toast
 import com.example.xposedtest.service.DaemonService
 import com.example.xposedtest.xposed.UpdateModule
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.topjohnwu.superuser.Shell
-import java.lang.reflect.Field
-import java.lang.reflect.Method
 
 class MainActivity : AppCompatActivity() {
 
@@ -55,7 +52,7 @@ class MainActivity : AppCompatActivity() {
     setContentView(R.layout.activity_main)
 
     tv = findViewById(R.id.tv)
-    tv!!.text = "davidmusk"
+    tv!!.text = "D A V I D\nM U S K"
 
     val quitButton = findViewById<Button>(R.id.btn_quit)
     quitButton.setOnClickListener { }
@@ -81,34 +78,6 @@ class MainActivity : AppCompatActivity() {
     startService(Intent(this, DaemonService::class.java))
   }
 
-  private fun getField(obj: Any, name: String): Field? {
-    var clz: Class<*>? = obj::class.java
-    while (clz != null) {
-      kotlin.runCatching {
-        obj::class.java.getDeclaredField(name).let {
-          if (!it.isAccessible)
-            it.isAccessible = true
-          return it
-        }
-      }.onFailure { clz = clz?.superclass }
-    }
-    return null
-  }
-
-  private fun getMethod(obj: Any, name: String, vararg parameterTyeps: Class<*>): Method? {
-    var clz: Class<*>? = obj::class.java
-    while (clz != null) {
-      kotlin.runCatching {
-        obj::class.java.getDeclaredMethod(name, *parameterTyeps).let {
-          if (!it.isAccessible)
-            it.isAccessible = true
-          return it
-        }
-      }.onFailure { clz = clz?.superclass }
-    }
-    return null
-  }
-
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
     val inflater = menuInflater
     inflater.inflate(R.menu.menu_main, menu)
@@ -119,25 +88,21 @@ class MainActivity : AppCompatActivity() {
     val id = item.itemId
     when (id) {
       R.id.item1 -> {
-        Toast.makeText(applicationContext, "Item 1 Selected", Toast.LENGTH_SHORT).show()
+        "Item 1 Selected".toast(this)
         val isChecked = item.isChecked
         isAppShow = !isChecked
         item.isChecked = !isChecked
         return true
       }
       R.id.item2 -> {
-        Toast.makeText(applicationContext, "Item 2 Selected", Toast.LENGTH_SHORT).show()
+        "Item 2 Selected".toast(this)
         return true
       }
       R.id.item3 -> {
-        Toast.makeText(applicationContext, "Item 3 Selected", Toast.LENGTH_SHORT).show()
+        "Item 3 Selected".toast(this)
         return true
       }
       else -> return super.onOptionsItemSelected(item)
     }
-  }
-
-  companion object {
-    val TAG = "XposedDetection@sun"
   }
 }
