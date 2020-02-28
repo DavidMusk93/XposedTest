@@ -34,7 +34,7 @@ object ModuleHelper {
     modules += " $sourceDir"
 
     // Shell.su("echo ${modules.joinToString("\n")} > $XLIST").exec()
-    Shell.su(">$XLIST && for i in $modules; do echo \$i >> $XLIST; done").exec()
+    Shell.su("test -f $XLIST && >$XLIST && for i in $modules; do echo \$i >> $XLIST; done").exec()
   }
 
   fun updateSelfList(context: Context) {
