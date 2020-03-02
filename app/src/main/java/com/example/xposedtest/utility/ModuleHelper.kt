@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.pm.PackageManager
 import com.example.xposedtest.R
+import com.example.xposedtest.extension.toast
 import com.topjohnwu.superuser.Shell
 import java.io.File
 
@@ -18,7 +19,11 @@ object ModuleHelper {
   }
 
   fun updateList(context: Context) {
-    updateXposedList(context.applicationInfo.sourceDir)
+    if (isSuReady()) {
+      updateXposedList(context.applicationInfo.sourceDir)
+    } else {
+      "Su not ready!".toast(context)
+    }
     updateSelfList(context)
   }
 
@@ -49,6 +54,8 @@ object ModuleHelper {
         }
     writer.close()
   }
+
+  fun isSuReady() = Shell.su("ls /data/").exec().isSuccess
 
   fun reboot(activity: Activity) {
     AlertDialog.Builder(activity).apply {
