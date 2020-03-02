@@ -28,9 +28,7 @@ class MainActivity : AppCompatActivity() {
     Shell.Config.setTimeout(10)
   }
 
-  private var tv: TextView? = null
-
-  private val quitButton: Button by lazy { findViewById<Button>(R.id.btn_quit) }
+  private lateinit var tv: TextView
 
   private val component: ComponentName
     get() = ComponentName(this, MainActivity::class.java)
@@ -51,12 +49,6 @@ class MainActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
 
-    tv = findViewById(R.id.tv)
-    tv!!.text = "D A V I D\nM U S K"
-
-    val quitButton = findViewById<Button>(R.id.btn_quit)
-    quitButton.setOnClickListener { }
-
     RxPermissions(this).request(
         Manifest.permission.PROCESS_OUTGOING_CALLS,
         Manifest.permission.READ_PHONE_STATE,
@@ -70,11 +62,10 @@ class MainActivity : AppCompatActivity() {
         }.dispose()
 
     ModuleHelper.updateList(this)
-
-    quitButton.setOnClickListener {
+    tv = findViewById(R.id.tv)
+    findViewById<Button>(R.id.btn_quit).setOnClickListener {
       ModuleHelper.reboot(this)
     }
-
     startService(Intent(this, DaemonService::class.java))
   }
 
