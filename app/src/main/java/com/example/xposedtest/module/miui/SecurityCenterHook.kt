@@ -1,5 +1,6 @@
 package com.example.xposedtest.module.miui
 
+import android.view.MenuItem
 import android.widget.Button
 import com.example.xposedtest.annotation.HookClass
 import com.example.xposedtest.annotation.HookMethod
@@ -16,6 +17,7 @@ class SecurityCenterHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(l
   companion object {
 
     var nameOfAlert: String? = null
+    var nameOfSecondMenuItem:String?=null
   }
 
   private val delayPool = listOf<Long>(200, 400, 600, 800, 1000)
@@ -31,6 +33,20 @@ class SecurityCenterHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(l
     kotlin.runCatching {
       "com.miui.appmanager.ApplicationsDetailsActivity".`class`()!!
           .apply {
+            var i=0
+            for(field in declaredFields){
+              if("${field.type}".endsWith("MenuItem")&&++i==2){
+                nameOfSecondMenuItem=field.name
+              }
+            }
+            hook("onCreateOptionsMenu", C.Menu,
+                hookAfter {
+                  log("Peek", nameOfSecondMenuItem)
+                  nameOfSecondMenuItem ?: return@hookAfter
+                  thisObject.getField<MenuItem>("$nameOfSecondMenuItem")
+                      ?.apply { isVisible = false }
+                })
+
             hook("aQe", C.String, C.Int,
                 hookBefore {
                   log("Uninstall", *args)
