@@ -9,7 +9,9 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 class MainHook : IXposedHookLoadPackage {
 
   override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
-    HookMap[lpparam.packageName.hashCode()]
-        ?.let { XposedHelpers.newInstance(it, lpparam).callMethod("setupHook") }
+    kotlin.runCatching {
+      HookMap[lpparam.packageName.hashCode()]
+          ?.let { XposedHelpers.newInstance(it, lpparam).callMethod("setupHook") }
+    }.onFailure { it.printStackTrace() }
   }
 }

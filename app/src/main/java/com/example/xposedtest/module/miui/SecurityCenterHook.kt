@@ -13,6 +13,11 @@ import kotlinx.coroutines.launch
 @HookClass("com.miui.securitycenter")
 class SecurityCenterHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(lpparam, HookContext()), IHookEntry {
 
+  companion object {
+
+    var nameOfAlert: String? = null
+  }
+
   private val delayPool = listOf<Long>(200, 400, 600, 800, 1000)
 
   override fun setupHook() {
@@ -23,53 +28,61 @@ class SecurityCenterHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(l
   private fun hookUninstall() {
     var cachedPackageName: String? = null
 
-    "com.miui.appmanager.ApplicationsDetailsActivity".`class`()!!
-        .apply {
-          hook("aQe", C.String, C.Int,
-              hookBefore {
-                log("Uninstall", *args)
-                //log("Uninstall@aCf", thisObject.getField("aCf"))
-                if (Config.Package.isProtectApp(args[0]))
-                  args[0] = null
-              })
+    kotlin.runCatching {
+      "com.miui.appmanager.ApplicationsDetailsActivity".`class`()!!
+          .apply {
+            hook("aQe", C.String, C.Int,
+                hookBefore {
+                  log("Uninstall", *args)
+                  //log("Uninstall@aCf", thisObject.getField("aCf"))
+                  if (Config.Package.isProtectApp(args[0]))
+                    args[0] = null
+                })
 
-          hook("aPD", hookBoth({
-            cachedPackageName = thisObject.getField("mPackageName")
-            if (Config.Package.isProtectApp(cachedPackageName)) {
-              thisObject.setField("mPackageName", "com.jeejen.family.miui")
-            } else {
-              cachedPackageName = null
-            }
-          }, {
-            if (cachedPackageName != null) {
-              thisObject.setField("mPackageName", cachedPackageName)
-              cachedPackageName = null
-            }
-          }))
-        }
+            hook("aPD", hookBoth({
+              cachedPackageName = thisObject.getField("mPackageName")
+              if (Config.Package.isProtectApp(cachedPackageName)) {
+                thisObject.setField("mPackageName", "com.jeejen.family.miui")
+              } else {
+                cachedPackageName = null
+              }
+            }, {
+              if (cachedPackageName != null) {
+                thisObject.setField("mPackageName", cachedPackageName)
+                cachedPackageName = null
+              }
+            }))
+          }
+    }.onFailure { log("Failure@Uninstall", it) }
   }
 
   @HookMethod
   private fun hook() {
-    "${SecurityCenter.RemoteProvider}".`class`()!!.hook("hD",
-        C.String, C.Boolean,
-        hookBefore {
-          val k = args[0].cast<String>() ?: return@hookBefore
-          if (k.equals("security_adb_install_enable"))
-            args[1] = false
-          log("BlockPermissionCheck", "enable adb install")
-        })
+    kotlin.runCatching {
+      "${SecurityCenter.RemoteProvider}".`class`()!!.hook("hD",
+          C.String, C.Boolean,
+          hookBefore {
+            val k = args[0].cast<String>() ?: return@hookBefore
+            if (k.equals("security_adb_install_enable"))
+              args[1] = false
+            log("BlockPermissionCheck", "enable adb install")
+          })
+    }.onFailure { log("Failure@AdbInstall", it) }
 
     "${SecurityCenter.AdbInstallActivity}".`class`()!!
         .apply {
-          hook("Kt",
-              C.View,
+          for (field in declaredFields) {
+            if ("${field.type}".endsWith("Object")) {
+              nameOfAlert = field.name
+              break
+            }
+          }
+
+          hook("onCreate", C.Bundle,
               hookAfter {
-                // In kotlin, it is really hard to represent `Class[]`
-                // val clsArr: Array<Class<*>> = Array(1, {IntArray::class.java.componentType})
-                // val cls = Class.forName("com.android.internal.app.AlertController")
+                nameOfAlert ?: return@hookAfter
                 val okButton: Button = thisObject
-                    .getField<Any>("BT")
+                    .getField<Any>("$nameOfAlert")
                     ?.callMethod("getButton", -2)
                     ?.cast<Button>() ?: return@hookAfter
                 MainScope().launch {

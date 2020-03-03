@@ -20,6 +20,7 @@ object C {
   val ViewGroup = android.view.ViewGroup::class.java
   val MotionEvent = android.view.MotionEvent::class.java
   val FragmentActivity = android.support.v4.app.FragmentActivity::class.java
+  val Button = android.widget.Button::class.java
 
   val Intent = android.content.Intent::class.java
   val ListView = android.widget.ListView::class.java
