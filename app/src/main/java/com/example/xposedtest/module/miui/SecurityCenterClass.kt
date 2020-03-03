@@ -1,6 +1,6 @@
 package com.example.xposedtest.module.miui
 
-import com.example.xposedtest.module.wx.PackageNode
+import com.example.xposedtest.utility.PackageNode
 
 object SecurityCenter {
 

@@ -2,64 +2,64 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.xposedtest">
 
-  <application
-      android:allowBackup="true"
-      android:debuggable="true"
-      android:icon="@mipmap/ic_launcher"
-      android:label="@string/app_name"
-      android:roundIcon="@mipmap/ic_launcher_round"
-      android:supportsRtl="true"
-      android:theme="@style/AppTheme">
+    <application
+        android:allowBackup="true"
+        android:debuggable="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
 
-    <activity android:name=".MainActivity">
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-      </intent-filter>
-    </activity>
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
-    <receiver
-        android:name=".receiver.DaemonReceiver"
-        android:enabled="true"
-        android:exported="true">
-      <intent-filter>
-        <action android:name="restart_service" />
-      </intent-filter>
-    </receiver>
+        <receiver
+            android:name=".receiver.DaemonReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="restart_service" />
+            </intent-filter>
+        </receiver>
 
-    <service
-        android:name=".service.DaemonService"
-        android:enabled="true"
-        android:exported="true"
-        android:process=":daemon_service" />
+        <service
+            android:name=".service.DaemonService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":daemon_service" />
 
-    <service
-        android:name=".service.CancelNoticeService"
-        android:enabled="true"
-        android:exported="true"
-        android:process=":tmp_service" />
+        <service
+            android:name=".service.CancelNoticeService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":tmp_service" />
 
-    <meta-data
-        android:name="xposeddescription"
-        android:value="H E L L O  X P O S E D" />
-    <meta-data
-        android:name="xposedminversion"
-        android:value="82" />
+        <meta-data
+            android:name="xposeddescription"
+            android:value="H E L L O  X P O S E D" />
+        <meta-data
+            android:name="xposedminversion"
+            android:value="82" />
 
-    <meta-data
-        android:name="xposedmodule"
-        android:value="true" />
+        <meta-data
+            android:name="xposedmodule"
+            android:value="true" />
 
-    <receiver android:name=".receiver.LaunchAppViaDialReceiver">
-      <intent-filter>
-        <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
-      </intent-filter>
-    </receiver>
-  </application>
+        <receiver android:name=".receiver.LaunchAppViaDialReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
+            </intent-filter>
+        </receiver>
+    </application>
 
-  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-  <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
 
 </manifest>
