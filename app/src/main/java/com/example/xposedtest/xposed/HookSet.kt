@@ -8,7 +8,7 @@ import com.example.xposedtest.module.test.MainAppHook
 import com.example.xposedtest.module.tomato.TomatoHook
 import com.example.xposedtest.module.wx.WxHook
 
-object HookSet : Iterator<Class<*>> {
+class HookSet : Iterator<Class<*>> {
 
   private val data = listOf(
       SecurityCenterHook::class.java,
