@@ -1,5 +1,6 @@
 package com.example.xposedtest.xposed
 
+import com.example.xposedtest.annotation.HookClass
 import com.example.xposedtest.module.ag.AgHook
 import com.example.xposedtest.module.douyin.DouYinHook
 import com.example.xposedtest.module.kuai.KuaiHook
@@ -34,4 +35,17 @@ class HookSet : Iterator<Class<*>> {
   override fun next(): Class<*> {
     return data[i++]
   }
+}
+
+object HookMap {
+
+  private val map = mutableMapOf<Int, Class<*>>().apply {
+    HookSet().forEach {
+      it.getAnnotation(HookClass::class.java)?.let { clz ->
+        this[clz.pkg.hashCode()] = it
+      }
+    }
+  }
+
+  operator fun get(hash: Int) = if (map.containsKey(hash)) map[hash] else null
 }
