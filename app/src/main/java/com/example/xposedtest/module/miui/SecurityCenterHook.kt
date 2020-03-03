@@ -1,5 +1,6 @@
 package com.example.xposedtest.module.miui
 
+import android.content.Intent
 import android.view.MenuItem
 import android.widget.Button
 import com.example.xposedtest.annotation.HookClass
@@ -14,62 +15,26 @@ import kotlinx.coroutines.launch
 @HookClass("com.miui.securitycenter")
 class SecurityCenterHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(lpparam, HookContext()), IHookEntry {
 
-  companion object {
-
-    var nameOfAlert: String? = null
-    var nameOfSecondMenuItem:String?=null
-  }
-
-  private val delayPool = listOf<Long>(200, 400, 600, 800, 1000)
-
   override fun setupHook() {
     super.setupHook(this)
   }
 
   @HookMethod
   private fun hookUninstall() {
-    var cachedPackageName: String? = null
+    var packageName: String? = null
+    "com.miui.appmanager.ApplicationsDetailsActivity".`class`()!!.apply {
+      hook("onCreate", C.Bundle, hookBefore {
+        val intent = thisObject.callMethod("getIntent").cast<Intent>()
+        packageName = intent?.getStringExtra("package_name")
+      })
 
-    kotlin.runCatching {
-      "com.miui.appmanager.ApplicationsDetailsActivity".`class`()!!
-          .apply {
-            var i=0
-            for(field in declaredFields){
-              if("${field.type}".endsWith("MenuItem")&&++i==2){
-                nameOfSecondMenuItem=field.name
-              }
-            }
-            hook("onCreateOptionsMenu", C.Menu,
-                hookAfter {
-                  log("Peek", nameOfSecondMenuItem)
-                  nameOfSecondMenuItem ?: return@hookAfter
-                  thisObject.getField<MenuItem>("$nameOfSecondMenuItem")
-                      ?.apply { isVisible = false }
-                })
-
-            hook("aQe", C.String, C.Int,
-                hookBefore {
-                  log("Uninstall", *args)
-                  //log("Uninstall@aCf", thisObject.getField("aCf"))
-                  if (Config.Package.isProtectApp(args[0]))
-                    args[0] = null
-                })
-
-            hook("aPD", hookBoth({
-              cachedPackageName = thisObject.getField("mPackageName")
-              if (Config.Package.isProtectApp(cachedPackageName)) {
-                thisObject.setField("mPackageName", "com.jeejen.family.miui")
-              } else {
-                cachedPackageName = null
-              }
-            }, {
-              if (cachedPackageName != null) {
-                thisObject.setField("mPackageName", cachedPackageName)
-                cachedPackageName = null
-              }
-            }))
-          }
-    }.onFailure { log("Failure@Uninstall", it) }
+      val nameOfSecondMenuItem: String = this.fieldName("MenuItem", 2) ?: return
+      hook("onCreateOptionsMenu", C.Menu, hookAfter {
+        if (Config.Package.isProtectApp(packageName)) {
+          thisObject.getField<MenuItem>(nameOfSecondMenuItem)?.apply { isVisible = false }
+        }
+      })
+    }
   }
 
   @HookMethod
@@ -85,35 +50,26 @@ class SecurityCenterHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(l
           })
     }.onFailure { log("Failure@AdbInstall", it) }
 
-    "${SecurityCenter.AdbInstallActivity}".`class`()!!
-        .apply {
-          for (field in declaredFields) {
-            if ("${field.type}".endsWith("Object")) {
-              nameOfAlert = field.name
-              break
-            }
-          }
-
-          hook("onCreate", C.Bundle,
-              hookAfter {
-                nameOfAlert ?: return@hookAfter
-                val okButton: Button = thisObject
-                    .getField<Any>("$nameOfAlert")
-                    ?.callMethod("getButton", -2)
-                    ?.cast<Button>() ?: return@hookAfter
-                MainScope().launch {
-                  delay(delayPool.shuffled().last())
-                  log("AutoClick", okButton)
-                  okButton.performClick()
-                }
-              })
-
-          hook("onClick", C.DialogInterface, C.Int,
-              hookBefore {
-                log("onClick", *args)
-                args[1] = -2
-              })
+    "${SecurityCenter.AdbInstallActivity}".`class`()!!.apply {
+      val delayPool = listOf<Long>(200, 400, 600, 800, 1000)
+      val nameOfAlert: String = this.fieldName("Object") ?: return
+      hook("onCreate", C.Bundle, hookAfter {
+        val okButton: Button = thisObject
+            .getField<Any>(nameOfAlert)
+            ?.callMethod("getButton", -2)
+            ?.cast<Button>() ?: return@hookAfter
+        MainScope().launch {
+          delay(delayPool.shuffled().last())
+          log("AutoClick", okButton)
+          okButton.performClick()
         }
+      })
+
+      hook("onClick", C.DialogInterface, C.Int, hookBefore {
+        log("onClick", *args)
+        args[1] = -2
+      })
+    }
   }
 
 }

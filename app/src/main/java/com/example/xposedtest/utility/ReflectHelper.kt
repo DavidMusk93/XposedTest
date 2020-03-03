@@ -33,4 +33,16 @@ object ReflectHelper {
     return null
   }
 
+  fun getFieldName(clz: Class<*>, type: String, sequence: Int): String? {
+    var i = 0
+    for (field in clz.declaredFields) {
+      if ("${field.type}".endsWith(type) && ++i == sequence) {
+        return field.name
+      }
+    }
+    return null
+  }
+
 }
+
+fun Class<*>.fieldName(type: String, sequence: Int = 1) = ReflectHelper.getFieldName(this, type, sequence)
