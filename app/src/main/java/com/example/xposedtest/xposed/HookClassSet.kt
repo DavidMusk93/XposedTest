@@ -8,9 +8,9 @@ import com.example.xposedtest.module.test.MainAppHook
 import com.example.xposedtest.module.tomato.TomatoHook
 import com.example.xposedtest.module.wx.WxHook
 
-object HookClassSet {
+object HookSet : Iterator<Class<*>> {
 
-  val data = listOf(
+  private val data = listOf(
       SecurityCenterHook::class.java,
       WxHook::class.java,
       SettingsHook::class.java,
@@ -24,4 +24,14 @@ object HookClassSet {
       UpdaterHook::class.java,
       MainAppHook::class.java
   )
+
+  private var i = 0
+
+  override fun hasNext(): Boolean {
+    return i < data.size
+  }
+
+  override fun next(): Class<*> {
+    return data[i++]
+  }
 }
