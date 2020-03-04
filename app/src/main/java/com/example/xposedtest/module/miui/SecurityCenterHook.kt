@@ -28,7 +28,7 @@ class SecurityCenterHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(l
         packageName = intent?.getStringExtra("package_name")
       })
 
-      val nameOfSecondMenuItem: String = this.fieldName("MenuItem", 2) ?: return
+      val nameOfSecondMenuItem: String = this.fieldName(C.MenuItem, 2) ?: return
       hook("onCreateOptionsMenu", C.Menu, hookAfter {
         if (Config.Package.isProtectApp(packageName)) {
           thisObject.getField<MenuItem>(nameOfSecondMenuItem)?.apply { isVisible = false }
@@ -38,21 +38,10 @@ class SecurityCenterHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(l
   }
 
   @HookMethod
-  private fun hook() {
-    kotlin.runCatching {
-      "${SecurityCenter.RemoteProvider}".`class`()!!.hook("hD",
-          C.String, C.Boolean,
-          hookBefore {
-            val k = args[0].cast<String>() ?: return@hookBefore
-            if (k.equals("security_adb_install_enable"))
-              args[1] = false
-            log("BlockPermissionCheck", "enable adb install")
-          })
-    }.onFailure { log("Failure@AdbInstall", it) }
-
+  private fun hookInstall() {
     "${SecurityCenter.AdbInstallActivity}".`class`()!!.apply {
       val delayPool = listOf<Long>(200, 400, 600, 800, 1000)
-      val nameOfAlert: String = this.fieldName("Object") ?: return
+      val nameOfAlert: String = this.fieldName(C.Object) ?: return
       hook("onCreate", C.Bundle, hookAfter {
         val okButton: Button = thisObject
             .getField<Any>(nameOfAlert)
@@ -68,6 +57,19 @@ class SecurityCenterHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(l
       hook("onClick", C.DialogInterface, C.Int, hookBefore {
         log("onClick", *args)
         args[1] = -2
+      })
+    }
+  }
+
+  @HookMethod
+  private fun hookAdbInstall() {
+    "${SecurityCenter.RemoteProvider}".`class`()!!.apply {
+      val nameOfPermissionCHeckMethod = this.methodName(C.Void, C.String, C.Boolean) ?: return
+      hook(nameOfPermissionCHeckMethod, C.String, C.Boolean, hookBefore {
+        if ("${args[0]}".equals("security_adb_install_enable")) {
+          args[1] = false
+        }
+        log("InterruptPermissionCheck", "adb_install")
       })
     }
   }

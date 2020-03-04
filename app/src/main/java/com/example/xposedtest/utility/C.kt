@@ -10,6 +10,7 @@ object C {
   val Float = Float::class.java
   val Boolean = kotlin.Boolean::class.java
 
+  val Void = java.lang.Void.TYPE
   val Object = Any::class.java
   val String = String::class.java
   val ByteArray = kotlin.ByteArray::class.java

@@ -33,11 +33,30 @@ object ReflectHelper {
     return null
   }
 
-  fun getFieldName(clz: Class<*>, type: String, sequence: Int): String? {
+  fun getFieldName(clz: Class<*>, type: Class<*>, sequence: Int): String? {
     var i = 0
     for (field in clz.declaredFields) {
-      if ("${field.type}".endsWith(type) && ++i == sequence) {
+      if (field.type == type && ++i == sequence) {
         return field.name
+      }
+    }
+    return null
+  }
+
+  fun getMethodName(clz: Class<*>, returnType: Class<*>, vararg parameterTypes: Class<*>): String? {
+    var i: Int
+    val count = parameterTypes.size
+    for (method in clz.declaredMethods) {
+      if (method.parameterCount == count && method.returnType == returnType) {
+        i = -1
+        while (++i < count) {
+          if (method.parameterTypes[i] != parameterTypes[i]) {
+            break
+          }
+        }
+        if (i == count) {
+          return method.name
+        }
       }
     }
     return null
@@ -45,4 +64,5 @@ object ReflectHelper {
 
 }
 
-fun Class<*>.fieldName(type: String, sequence: Int = 1) = ReflectHelper.getFieldName(this, type, sequence)
+fun Class<*>.fieldName(type: Class<*>, sequence: Int = 1) = ReflectHelper.getFieldName(this, type, sequence)
+fun Class<*>.methodName(returnType: Class<*>, vararg parameterTyeps: Class<*>) = ReflectHelper.getMethodName(this, returnType, *parameterTyeps)
