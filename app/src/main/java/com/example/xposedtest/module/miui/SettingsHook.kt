@@ -69,6 +69,8 @@ class SettingsHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(lpparam
       log("MethodName", nameOfAdbInstallCheckMethod, nameOfSetSecurityPreferenceMethod, nameOfSetInputEnabledMethod)
       hook(nameOfAdbInstallCheckMethod, C.Context, hookAfter {
         log("DevelopmentSetting", "enable adb_install & adb_input")
+        val r = result.cast<Boolean>() ?: return@hookAfter
+        if (r) return@hookAfter
         Bundle().apply {
           putInt("type", 1)
           putString("key", "security_adb_install_enable")
