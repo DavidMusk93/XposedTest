@@ -5,3 +5,9 @@ inline fun <reified T> Any?.cast(): T? {
     return this
   return null
 }
+
+fun Any?.bool(): Boolean {
+  if (this is Boolean)
+    return this
+  return false
+}

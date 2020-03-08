@@ -6,10 +6,8 @@ import android.preference.PreferenceScreen
 import android.view.Menu
 import com.example.xposedtest.annotation.HookClass
 import com.example.xposedtest.annotation.HookMethod
-import com.example.xposedtest.utility.C
-import com.example.xposedtest.utility.callStaticMethod
-import com.example.xposedtest.utility.cast
-import com.example.xposedtest.utility.methodName
+import com.example.xposedtest.extension.bool
+import com.example.xposedtest.utility.*
 import com.example.xposedtest.xposed.*
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
@@ -58,30 +56,52 @@ class SettingsHook(lpparam: XC_LoadPackage.LoadPackageParam) : HookEntry(lpparam
     }
   }
 
+  private val a = "${Settings.android["a"]["a"]}".`class`()!!
+  private val nameOfAdbInstallCheckMethod = a.methodName(C.Boolean, C.Context)
+  private val nameOfSetSecurityPreferenceMethod = a.methodName(C.Bundle, C.Context, C.String, C.Bundle)
+  private val nameOfSetInputEnabledMethod = a.methodName(C.Void, C.Boolean)
+
+  private fun enableAdbInstall(clz: Class<*>, ctx: Any, m1: String, m2: String) {
+    Bundle().apply {
+      putInt("type", 1)
+      putString("key", "security_adb_install_enable")
+      putBoolean("value", true)
+      clz.callStaticMethod(m1, ctx, "SET", this)
+    }
+    clz.callStaticMethod(m2, true)
+  }
+
   @HookMethod
-  private fun hook() {
-    val a = "${Settings.android["a"]["a"]}".`class`()!!
+  private fun hookDevelopmentSetting() {
+    nameOfAdbInstallCheckMethod ?: return
+    nameOfSetSecurityPreferenceMethod ?: return
+    nameOfSetInputEnabledMethod ?: return
     a.apply {
-      val nameOfAdbInstallCheckMethod = this.methodName(C.Boolean, C.Context) ?: return
-      val nameOfSetSecurityPreferenceMethod = this.methodName(C.Bundle, C.Context, C.String, C.Bundle)
-          ?: return
-      val nameOfSetInputEnabledMethod = this.methodName(C.Void, C.Boolean) ?: return
-      log("MethodName", nameOfAdbInstallCheckMethod, nameOfSetSecurityPreferenceMethod, nameOfSetInputEnabledMethod)
       hook(nameOfAdbInstallCheckMethod, C.Context, hookAfter {
         log("DevelopmentSetting", "enable adb_install & adb_input")
-        val r = result.cast<Boolean>() ?: return@hookAfter
-        if (r) return@hookAfter
-        Bundle().apply {
-          putInt("type", 1)
-          putString("key", "security_adb_install_enable")
-          putBoolean("value", true)
-          a.callStaticMethod(nameOfSetSecurityPreferenceMethod, this@hookAfter.args[0], "SET", this)
-        }
-        a.callStaticMethod(nameOfSetInputEnabledMethod, true)
+        if (result.bool()) return@hookAfter
+        enableAdbInstall(a, args[0], nameOfSetSecurityPreferenceMethod, nameOfSetInputEnabledMethod)
         result = true
       })
     }
 
+    /** HOOK TIPS: It is feasible to hook default method of abstract class. */
+    //"$packageName.dashboard.DashboardFragment".`class`()!!.apply {
+    //  hook("onAttach", C.Context,
+    //      hookBefore {
+    //        kotlin.runCatching {
+    //          log("onAttach", *args, thisObject.callMethod("mI"))
+    //        }.onFailure { log("hookDevelopmentSetting@Failure", it) }
+    //      })
+    //}
+
+    kotlin.runCatching {
+      "$packageName.development.DevelopmentSettingsDashboardFragment".`class`()!!.apply {
+        hook("onActivityCreated", C.Bundle, hookAfter {
+          a.callStaticMethod(nameOfAdbInstallCheckMethod, thisObject.callMethod("getContext"))
+        })
+      }
+    }.onFailure { it.printStackTrace() }
   }
 
 }
