@@ -2,13 +2,9 @@ package com.example.xposedtest.module.miui
 
 import android.content.pm.PackageInfo
 import android.view.View
-import android.widget.Button
 import com.example.xposedtest.annotation.HookClass
 import com.example.xposedtest.annotation.HookMethod
-import com.example.xposedtest.utility.C
-import com.example.xposedtest.utility.callMethod
-import com.example.xposedtest.utility.cast
-import com.example.xposedtest.utility.getField
+import com.example.xposedtest.utility.*
 import com.example.xposedtest.xposed.*
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
@@ -22,45 +18,45 @@ class PackageInstallerHook(lpparam: XC_LoadPackage.LoadPackageParam)
 
   @HookMethod
   private fun hookInstall() {
-    "com.android.packageinstaller.PackageInstallerActivity".`class`()!!
-        .apply {
-          hook("onResume",
-              hookAfter {
-                log("Resume", "Does uri parsing finished?")
-                thisObject.getField<PackageInfo>("mPkgInfo")?.apply {
-                  log("PackageInstaller", packageName)
-                }
-              })
-
-          hook("onClick", C.View,
-              hookBefore {
-                log("View", *args)
-                val okButtion = thisObject.getField<Button>("mOk") ?: return@hookBefore
-                val pkg = thisObject.getField<PackageInfo>("mPkgInfo")?.packageName
-                if (Config.Package.preventInstallAppList.contains("$pkg")) {
-                  if (args[0] == okButtion) {
-                    args[0] = thisObject.getField("mCancel")
-                  }
-                }
-              })
+    "com.android.packageinstaller.PackageInstallerActivity".`class`()!!.apply {
+      val nameOfPackageInfoField = this.fieldName(C.PackageInfo) ?: return
+      hook("onResume", hookAfter {
+        log("Resume", "($appVersion)Does uri parsing finished?")
+        thisObject.getField<PackageInfo>(nameOfPackageInfoField)?.apply {
+          log("PackageInstaller", packageName)
         }
+      })
+
+      val nameOfSecondButtonField = this.fieldName(C.Button, 2) ?: return
+      hook("onClick", C.View, hookBefore {
+        if ("${args[0]}".contains(Regex("ok|install"))) {
+          var cancelButton: Any? = null
+          kotlin.runCatching {
+            cancelButton = thisObject.getField("mCancel")
+          }.onFailure { cancelButton = thisObject.getField(nameOfSecondButtonField) }
+          cancelButton ?: return@hookBefore
+          val pkg = thisObject.getField<PackageInfo>(nameOfPackageInfoField)?.packageName
+          if (Config.Package.preventInstallAppList.contains("$pkg")) {
+            args[0] = cancelButton
+          }
+        }
+      })
+    }
   }
 
   @HookMethod
   private fun hookUninstall() {
-    "com.android.packageinstaller.UninstallerActivity".`class`()!!
-        .apply {
-          hook("onClick", C.View,
-              hookBefore {
-                log("Click", *args)
-                val pkg = thisObject.getField<String>("mPackageName") ?: return@hookBefore
-                if (Config.Package.protectAppList.contains(pkg)) {
-                  val id = args[0].cast<View>()?.id ?: return@hookBefore
-                  if (id.and(1) == 1) {
-                    args[0] = thisObject.callMethod("findViewById", id - 1)
-                  }
-                }
-              })
+    "com.android.packageinstaller.UninstallerActivity".`class`()!!.apply {
+      val nameOfPackageNameField = this.fieldName(C.String) ?: return
+      hook("onClick", C.View, hookBefore {
+        if ("${args[0]}".contains("continue")) {
+          val pkg = thisObject.getField<String>(nameOfPackageNameField) ?: return@hookBefore
+          if (Config.Package.protectAppList.contains(pkg)) {
+            val id = args[0].cast<View>()?.id ?: return@hookBefore
+            args[0] = thisObject.callMethod("findViewById", id - 1)
+          }
         }
+      })
+    }
   }
 }

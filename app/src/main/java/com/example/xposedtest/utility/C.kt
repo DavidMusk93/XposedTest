@@ -63,6 +63,7 @@ object C {
   val Header by lazy { android.preference.PreferenceActivity.Header::class.java }
 
   val PackageInstaller by lazy { PackageInstaller::class.java }
+  val PackageInfo by lazy { android.content.pm.PackageInfo::class.java }
 
   val ClassLoader by lazy { ClassLoader::class.java }
   val HashMap by lazy { HashMap::class.java }
